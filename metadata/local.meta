@@ -1,0 +1,21 @@
+[app/ui]
+version = 8.0.2
+modtime = 1585347741.149036000
+
+[app/launcher]
+version = 8.0.2
+modtime = 1585347741.152492000
+
+[views/webex_analytics]
+access = read : [ * ], write : [ * ]
+export = none
+owner = admin
+version = 8.0.2
+modtime = 1585357568.506986000
+
+[macros/webex_index]
+access = read : [ * ], write : [ admin ]
+export = none
+owner = admin
+version = 8.0.2
+modtime = 1585356903.299190000
