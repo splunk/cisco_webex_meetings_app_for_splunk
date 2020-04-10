@@ -6,7 +6,7 @@
       <single>
         <search>
           <query>`webex_index`
-sourcetype="cisco:webex:csv" SessionID=* Attended=* Duration=* earliest=-1d
+sourcetype="webex:meeting:log" SessionID=* Attended=* Duration=* earliest=-1d
 | stats count(SessionID) as "Today's Meetings"
 |fields "Today's Meetings"</query>
           <earliest>0</earliest>
@@ -37,7 +37,7 @@ sourcetype="cisco:webex:csv" SessionID=* Attended=* Duration=* earliest=-1d
       <single>
         <search>
           <query>`webex_index`
-sourcetype="cisco:webex:csv" SessionID=* Attended=* earliest=-1d
+sourcetype="webex:meeting:log" SessionID=* Attended=* earliest=-1d
 | stats sum(Attended) as Attended
 | fields Attended</query>
           <earliest>0</earliest>
@@ -58,7 +58,6 @@ sourcetype="cisco:webex:csv" SessionID=* Attended=* earliest=-1d
         <option name="trellis.size">medium</option>
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="underLabel">ZXC</option>
         <option name="unitPosition">after</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
@@ -69,7 +68,7 @@ sourcetype="cisco:webex:csv" SessionID=* Attended=* earliest=-1d
       <single>
         <search>
           <query>`webex_index`
- sourcetype="cisco:webex:csv" SessionID=* Attended=* Duration=* 
+ sourcetype="webex:meeting:log" SessionID=* Attended=* Duration=* 
 | convert num(Duration) as Duration_Int 
 | stats median(Duration_Int) as "MedianDuration" 
 | fields  MedianDuration</query>
@@ -101,7 +100,7 @@ sourcetype="cisco:webex:csv" SessionID=* Attended=* earliest=-1d
       <title>Largest Meeting</title>
       <single>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:csv" SessionID=* Attended=* Duration=* 
+          <query>`webex_index` sourcetype="webex:meeting:log" SessionID=* Attended=* Duration=* 
 | convert num(Duration) as Duration_Int 
 | stats max(Duration_Int) as "MaxDuration" 
 | fields  "MaxDuration"</query>
@@ -133,7 +132,7 @@ sourcetype="cisco:webex:csv" SessionID=* Attended=* earliest=-1d
       <title>Shortest Meeting</title>
       <single>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:csv" SessionID=* Attended=* Duration=* 
+          <query>`webex_index` sourcetype="webex:meeting:log" SessionID=* Attended=* Duration=* 
 | convert num(Duration) as Duration_Int 
 | stats min(Duration_Int) as "MinDuration" 
 | fields MinDuration</query>
@@ -167,7 +166,7 @@ sourcetype="cisco:webex:csv" SessionID=* Attended=* earliest=-1d
       <title>Meeting Count by Duration</title>
       <chart>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:csv" SessionID=* Attended=* Duration=* 
+          <query>`webex_index` sourcetype="webex:meeting:log" SessionID=* Attended=* Duration=* 
 | convert num(Duration) as Duration_Int 
 | timechart span=1h dc(SessionID) as "Unique Meetings" avg(Duration_Int) as "Average Duration (min)"</query>
           <earliest>0</earliest>
@@ -211,7 +210,7 @@ sourcetype="cisco:webex:csv" SessionID=* Attended=* earliest=-1d
       <title>Meeting Type</title>
       <chart>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:csv" SessionID=* Attended=* Duration=* 
+          <query>`webex_index` sourcetype="webex:meeting:log" SessionID=* Attended=* Duration=* 
 | stats count by MeetingType</query>
           <earliest>0</earliest>
           <sampleRatio>1</sampleRatio>
@@ -255,15 +254,15 @@ sourcetype="cisco:webex:csv" SessionID=* Attended=* earliest=-1d
       <title>WebEx Overview</title>
       <table>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:csv" SessionID=* Attended=* 
+          <query>`webex_index` sourcetype="webex:meeting:log" SessionID=* Attended=* 
 | eval Conference = Topic . " (" . Attended . " users)" 
 | eval threshold=100 
 | sort Date, - Attended 
 | where Attended &gt; threshold 
 | fields - threshold 
 | stats list(Conference) as "Large Conferences" by Date
-| join Date [search `webex_index` sourcetype="cisco:webex:csv"| stats sum(Attended) as "Total # of Participants" by Date]
-| join Date [search `webex_index` sourcetype="cisco:webex:csv" | stats count(SessionID) as "Number of Session" by Date]
+| join Date [search `webex_index` sourcetype="webex:meeting:log"| stats sum(Attended) as "Total # of Participants" by Date]
+| join Date [search `webex_index` sourcetype="webex:meeting:log" | stats count(SessionID) as "Number of Session" by Date]
 
 | table Date , "Number of Session", "Total # of Participants", "Large Conferences"</query>
           <earliest>0</earliest>
@@ -296,7 +295,7 @@ sourcetype="cisco:webex:csv" SessionID=* Attended=* earliest=-1d
       <title>In general, how many Meetings do we have for a set number of Participants?</title>
       <chart>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:csv" SessionID=* Attended=* Duration=* 
+          <query>`webex_index` sourcetype="webex:meeting:log" SessionID=* Attended=* Duration=* 
 | bin span=1h _time 
 | stats sum(Attended) as participant_count by SessionID _time
 | bin participant_count span=log5
@@ -345,7 +344,7 @@ sourcetype="cisco:webex:csv" SessionID=* Attended=* earliest=-1d
       <title>List of Large Conferences</title>
       <table>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:csv" SessionID=* Attended=* 
+          <query>`webex_index` sourcetype="webex:meeting:log" SessionID=* Attended=* 
 | table Date Topic Username Attended
 | eval threshold=100 
 | where Attended &gt; threshold
@@ -375,7 +374,7 @@ sourcetype="cisco:webex:csv" SessionID=* Attended=* earliest=-1d
       <title>Prediction for number of Conference</title>
       <chart>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:csv" SessionID=* Attended=* Duration=* 
+          <query>`webex_index` sourcetype="webex:meeting:log" SessionID=* Attended=* Duration=* 
 | timechart count(SessionID) span=1d as SessionID | predict SessionID</query>
           <earliest>0</earliest>
           <sampleRatio>1</sampleRatio>
