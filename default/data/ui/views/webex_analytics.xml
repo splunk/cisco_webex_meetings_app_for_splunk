@@ -256,7 +256,7 @@
         <search>
           <query>`webex_index` `meeting_usage_history_sourcetype` SessionID=* Attended=* 
 | eval Conference = Topic . " (" . Attended . " users)" 
-| eval threshold=100 
+| eval threshold=1 
 | sort Date, - Attended 
 | where Attended &gt; threshold 
 | fields - threshold 
@@ -266,12 +266,14 @@
 
 | table Date , "Number of Session", "Total # of Participants", "Large Conferences"</query>
           <earliest>0</earliest>
+          <latest></latest>
           <sampleRatio>1</sampleRatio>
         </search>
         <option name="count">20</option>
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">none</option>
         <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
@@ -345,8 +347,8 @@
       <table>
         <search>
           <query>`webex_index` `meeting_usage_history_sourcetype` SessionID=* Attended=* 
-| table Date Topic Username Attended
-| eval threshold=100 
+| table Date Topic hostName Attended
+| eval threshold=1 
 | where Attended &gt; threshold
 | fields - threshold
 | sort Date, - Attended</query>
