@@ -14,7 +14,7 @@
       <title>Webex Meeting Geo Info Overview</title>
       <table>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list"  | stats values(name) as Username, values(participantType) as "Participant Type", values(clientAgent) as "Client Agent", values(ipAddress) as IP by confName</query>
+          <query>`webex_index` sourcetype="cisco:webex:meetingattendeehistory:list"  | stats values(name) as Username, values(participantType) as "Participant Type", values(clientAgent) as "Client Agent", values(ipAddress) as IP by confName</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
           <sampleRatio>1</sampleRatio>
@@ -56,7 +56,7 @@
       <title>WebEx Overview</title>
       <table>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetingattendeehistory:list"  SessionID=* Attended=* 
+          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list"  SessionID=* Attended=* 
 | eval Conference = Topic . " (" . Attended . " users)" 
 | eval threshold=1 
 | sort Date, - Attended 
