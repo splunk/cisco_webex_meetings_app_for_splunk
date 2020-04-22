@@ -56,7 +56,7 @@
       <title>WebEx Overview</title>
       <table>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list"  SessionID=* Attended=* 
+          <query>`webex_index` sourcetype="cisco:webex:meetingattendeehistory:list"  SessionID=* Attended=* 
 | eval Conference = Topic . " (" . Attended . " users)" 
 | eval threshold=1 
 | sort Date, - Attended 
