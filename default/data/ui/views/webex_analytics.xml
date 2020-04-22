@@ -1,14 +1,60 @@
 <dashboard theme="dark">
   <label>WebEx Ops</label>
+  <!--
   <row>
     <panel>
-      <title>Today's Meetings</title>
+      <title>Prediction for number of Conference</title>
+      <chart>
+        <search>
+          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list" SessionID=* Attended=* Duration=* 
+| timechart count(SessionID) span=1d as SessionID | predict SessionID</query>
+          <earliest>0</earliest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  -->
+  <row>
+    <panel>
+      <title>Active Meetings - Last hour</title>
       <single>
         <search>
           <query>`webex_index`
-`meeting_usage_history_sourcetype` SessionID=* Attended=* Duration=* earliest=-1d
-| stats count(SessionID) as "Today's Meetings"
-|fields "Today's Meetings"</query>
+sourcetype="cisco:webex:session:list" confID=* earliest=-4h
+| stats count(confID) as "Active Meetings - Last hour"
+| fields "Active Meetings - Last hour"</query>
           <earliest>0</earliest>
           <latest></latest>
           <sampleRatio>1</sampleRatio>
@@ -33,11 +79,11 @@
       </single>
     </panel>
     <panel>
-      <title>Today's Attendees</title>
+      <title>Weekly Attendees</title>
       <single>
         <search>
           <query>`webex_index`
-`meeting_usage_history_sourcetype` SessionID=* Attended=* earliest=-1d
+sourcetype="cisco:webex:meetingusagehistory:list" SessionID=* Attended=* earliest=-7d
 | stats sum(Attended) as Attended
 | fields Attended</query>
           <earliest>0</earliest>
@@ -68,7 +114,7 @@
       <single>
         <search>
           <query>`webex_index`
- `meeting_usage_history_sourcetype` SessionID=* Attended=* Duration=* 
+ sourcetype="cisco:webex:meetingusagehistory:list" SessionID=* Attended=* Duration=* 
 | convert num(Duration) as Duration_Int 
 | stats median(Duration_Int) as "MedianDuration" 
 | fields  MedianDuration</query>
@@ -100,7 +146,7 @@
       <title>Largest Meeting</title>
       <single>
         <search>
-          <query>`webex_index` `meeting_usage_history_sourcetype` SessionID=* Attended=* Duration=* 
+          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list" SessionID=* Attended=* Duration=* 
 | convert num(Duration) as Duration_Int 
 | stats max(Duration_Int) as "MaxDuration" 
 | fields  "MaxDuration"</query>
@@ -132,7 +178,7 @@
       <title>Shortest Meeting</title>
       <single>
         <search>
-          <query>`webex_index` `meeting_usage_history_sourcetype` SessionID=* Attended=* Duration=* 
+          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list" SessionID=* Attended=* Duration=* 
 | convert num(Duration) as Duration_Int 
 | stats min(Duration_Int) as "MinDuration" 
 | fields MinDuration</query>
@@ -163,10 +209,101 @@
   </row>
   <row>
     <panel>
+      <title>Devices Accessing Meetings</title>
+      <chart>
+        <search>
+          <query>`webex_index` sourcetype="cisco:webex:meetingattendeehistory:list" | stats count by clientAgent</query>
+          <earliest>0</earliest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+      <html>
+        <b>Description:</b> This comes from historical data (clientAgent).
+      </html>
+    </panel>
+    <panel>
+      <title>Meeting Type</title>
+      <chart>
+        <search>
+          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list" SessionID=* Attended=* Duration=* 
+| stats count by MeetingType</query>
+          <earliest>0</earliest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+      <html>
+        <b>Description:</b> This comes from historical data (MeetingType).
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
       <title>Meeting Count by Duration</title>
       <chart>
         <search>
-          <query>`webex_index` `meeting_usage_history_sourcetype` SessionID=* Attended=* Duration=* 
+          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list" SessionID=* Attended=* Duration=* 
 | convert num(Duration) as Duration_Int 
 | timechart span=1h dc(SessionID) as "Unique Meetings" avg(Duration_Int) as "Average Duration (min)"</query>
           <earliest>0</earliest>
@@ -205,99 +342,17 @@
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
       </chart>
-    </panel>
-    <panel>
-      <title>Meeting Type</title>
-      <chart>
-        <search>
-          <query>`webex_index` `meeting_usage_history_sourcetype` SessionID=* Attended=* Duration=* 
-| stats count by MeetingType</query>
-          <earliest>0</earliest>
-          <sampleRatio>1</sampleRatio>
-        </search>
-        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
-        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
-        <option name="charting.axisTitleX.visibility">visible</option>
-        <option name="charting.axisTitleY.visibility">visible</option>
-        <option name="charting.axisTitleY2.visibility">visible</option>
-        <option name="charting.axisX.abbreviation">none</option>
-        <option name="charting.axisX.scale">linear</option>
-        <option name="charting.axisY.abbreviation">none</option>
-        <option name="charting.axisY.scale">linear</option>
-        <option name="charting.axisY2.abbreviation">none</option>
-        <option name="charting.axisY2.enabled">0</option>
-        <option name="charting.axisY2.scale">inherit</option>
-        <option name="charting.chart">pie</option>
-        <option name="charting.chart.bubbleMaximumSize">50</option>
-        <option name="charting.chart.bubbleMinimumSize">10</option>
-        <option name="charting.chart.bubbleSizeBy">area</option>
-        <option name="charting.chart.nullValueMode">gaps</option>
-        <option name="charting.chart.showDataLabels">none</option>
-        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
-        <option name="charting.chart.stackMode">default</option>
-        <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">none</option>
-        <option name="charting.layout.splitSeries">0</option>
-        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
-        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
-        <option name="charting.legend.mode">standard</option>
-        <option name="charting.legend.placement">right</option>
-        <option name="charting.lineWidth">2</option>
-        <option name="trellis.enabled">0</option>
-        <option name="trellis.scales.shared">1</option>
-        <option name="trellis.size">medium</option>
-      </chart>
+      <html>
+        <b>Description:</b>  Number of meetings and Average meeting duration over time. This includes the following type of meetings: instant, scheduled, recurring with and without fix scheduled time.
+      </html>
     </panel>
   </row>
   <row>
     <panel>
-      <title>WebEx Overview</title>
-      <table>
-        <search>
-          <query>`webex_index` `meeting_usage_history_sourcetype` SessionID=* Attended=* 
-| eval Conference = Topic . " (" . Attended . " users)" 
-| eval threshold=1 
-| sort Date, - Attended 
-| where Attended &gt; threshold 
-| fields - threshold 
-| stats list(Conference) as "Large Conferences" by Date
-| join Date [search `webex_index` `meeting_usage_history_sourcetype`| stats sum(Attended) as "Total # of Participants" by Date]
-| join Date [search `webex_index` `meeting_usage_history_sourcetype` | stats count(SessionID) as "Number of Session" by Date]
-
-| table Date , "Number of Session", "Total # of Participants", "Large Conferences"</query>
-          <earliest>0</earliest>
-          <latest></latest>
-          <sampleRatio>1</sampleRatio>
-        </search>
-        <option name="count">20</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="drilldown">none</option>
-        <option name="percentagesRow">false</option>
-        <option name="refresh.display">progressbar</option>
-        <option name="rowNumbers">false</option>
-        <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
-        <format type="color" field="Total # of Participants">
-          <colorPalette type="minMidMax" maxColor="#53A051" minColor="#FFFFFF"></colorPalette>
-          <scale type="minMidMax"></scale>
-        </format>
-        <format type="color" field="Number of Session">
-          <colorPalette type="minMidMax" maxColor="#53A051" minColor="#FFFFFF"></colorPalette>
-          <scale type="minMidMax"></scale>
-        </format>
-        <format type="color" field="Large Conferences">
-          <colorPalette type="sharedList"></colorPalette>
-          <scale type="sharedCategory"></scale>
-        </format>
-      </table>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <title>In general, how many Meetings do we have for a set number of Participants?</title>
+      <title>Number of Meetings by Number of Participants</title>
       <chart>
         <search>
-          <query>`webex_index` `meeting_usage_history_sourcetype` SessionID=* Attended=* Duration=* 
+          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list" SessionID=* Attended=* Duration=* 
 | bin span=1h _time 
 | stats sum(Attended) as participant_count by SessionID _time
 | bin participant_count span=log5
@@ -339,80 +394,51 @@
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
       </chart>
+      <html>
+        <b>Description:</b> This comes from historical data (Attendees per Meeting over Time).
+      </html>
     </panel>
   </row>
   <row>
     <panel>
-      <title>List of Large Conferences</title>
-      <table>
+      <title>Attendee's Geographical Location</title>
+      <map>
         <search>
-          <query>`webex_index` `meeting_usage_history_sourcetype` SessionID=* Attended=* 
-| table Date Topic hostName Attended
-| eval threshold=1 
-| where Attended &gt; threshold
-| fields - threshold
-| sort Date, - Attended</query>
+          <query>`webex_index` sourcetype="cisco:webex:meetingattendeehistory:list"|   iplocation ipAddress | eval City=if(like(City, ""), "Unknown", City) | geostats latfield=lat longfield=lon count(confName) by City</query>
           <earliest>0</earliest>
           <latest></latest>
           <sampleRatio>1</sampleRatio>
         </search>
-        <option name="count">20</option>
-        <option name="dataOverlayMode">none</option>
         <option name="drilldown">none</option>
-        <option name="percentagesRow">false</option>
-        <option name="refresh.display">preview</option>
-        <option name="rowNumbers">false</option>
-        <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
-        <format type="color" field="Attended">
-          <colorPalette type="minMidMax" maxColor="#62B3B2" minColor="#FFFFFF"></colorPalette>
-          <scale type="minMidMax"></scale>
-        </format>
-      </table>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <title>Prediction for number of Conference</title>
-      <chart>
-        <search>
-          <query>`webex_index` `meeting_usage_history_sourcetype` SessionID=* Attended=* Duration=* 
-| timechart count(SessionID) span=1d as SessionID | predict SessionID</query>
-          <earliest>0</earliest>
-          <sampleRatio>1</sampleRatio>
-        </search>
-        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
-        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
-        <option name="charting.axisTitleX.visibility">visible</option>
-        <option name="charting.axisTitleY.visibility">visible</option>
-        <option name="charting.axisTitleY2.visibility">visible</option>
-        <option name="charting.axisX.abbreviation">none</option>
-        <option name="charting.axisX.scale">linear</option>
-        <option name="charting.axisY.abbreviation">none</option>
-        <option name="charting.axisY.scale">linear</option>
-        <option name="charting.axisY2.abbreviation">none</option>
-        <option name="charting.axisY2.enabled">0</option>
-        <option name="charting.axisY2.scale">inherit</option>
-        <option name="charting.chart">column</option>
-        <option name="charting.chart.bubbleMaximumSize">50</option>
-        <option name="charting.chart.bubbleMinimumSize">10</option>
-        <option name="charting.chart.bubbleSizeBy">area</option>
-        <option name="charting.chart.nullValueMode">gaps</option>
-        <option name="charting.chart.showDataLabels">none</option>
-        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
-        <option name="charting.chart.stackMode">default</option>
-        <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">none</option>
-        <option name="charting.layout.splitSeries">0</option>
-        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
-        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
-        <option name="charting.legend.mode">standard</option>
-        <option name="charting.legend.placement">right</option>
-        <option name="charting.lineWidth">2</option>
+        <option name="mapping.choroplethLayer.colorBins">5</option>
+        <option name="mapping.choroplethLayer.colorMode">auto</option>
+        <option name="mapping.choroplethLayer.maximumColor">0xaf575a</option>
+        <option name="mapping.choroplethLayer.minimumColor">0x62b3b2</option>
+        <option name="mapping.choroplethLayer.neutralPoint">0</option>
+        <option name="mapping.choroplethLayer.shapeOpacity">0.75</option>
+        <option name="mapping.choroplethLayer.showBorder">1</option>
+        <option name="mapping.data.maxClusters">100</option>
+        <option name="mapping.legend.placement">bottomright</option>
+        <option name="mapping.map.center">(0,0)</option>
+        <option name="mapping.map.panning">1</option>
+        <option name="mapping.map.scrollZoom">0</option>
+        <option name="mapping.map.zoom">2</option>
+        <option name="mapping.markerLayer.markerMaxSize">50</option>
+        <option name="mapping.markerLayer.markerMinSize">10</option>
+        <option name="mapping.markerLayer.markerOpacity">0.8</option>
+        <option name="mapping.showTiles">1</option>
+        <option name="mapping.tileLayer.maxZoom">7</option>
+        <option name="mapping.tileLayer.minZoom">0</option>
+        <option name="mapping.tileLayer.tileOpacity">1</option>
+        <option name="mapping.type">marker</option>
+        <option name="refresh.display">progressbar</option>
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
-      </chart>
+      </map>
+      <html>
+        <b>Description:</b> This comes from historical attendee's data (Location is resolved based on IP to City mapping).
+      </html>
     </panel>
   </row>
 </dashboard>
