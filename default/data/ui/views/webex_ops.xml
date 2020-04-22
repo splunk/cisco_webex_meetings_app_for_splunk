@@ -57,13 +57,13 @@
   </fieldset>
   <row>
     <panel>
-      <title>Active Meetings - Last hour</title>
+      <title>Today's Meetings</title>
       <single>
         <search>
           <query>`webex_index`
-sourcetype="cisco:webex:session:list" confID=* earliest=-1h
-| stats count(confID) as "Active Meetings - Last hour"
-| fields "Active Meetings - Last hour"</query>
+sourcetype="cisco:webex:session:list" confID=* earliest=@d
+| stats count(confID) as "Today's Meetings"
+| fields "Today's Meetings"</query>
           <earliest>0</earliest>
           <latest></latest>
           <sampleRatio>1</sampleRatio>

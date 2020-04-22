@@ -1,5 +1,5 @@
 <form>
-  <label>WebEx - Extras</label>
+  <label>WebEx - Activities</label>
   <fieldset submitButton="false">
     <input type="time" token="time_tok">
       <label></label>
@@ -14,7 +14,7 @@
       <title>Webex Meeting Geo Info Overview</title>
       <table>
         <search>
-          <query>index=test sourcetype="cisco:webex:meetingattendeehistory:list" | stats values(name) as Username, values(participantType) as "Participant Type", values(clientAgent) as "Client Agent", values(ipAddress) as IP by confName</query>
+          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list"  | stats values(name) as Username, values(participantType) as "Participant Type", values(clientAgent) as "Client Agent", values(ipAddress) as IP by confName</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
           <sampleRatio>1</sampleRatio>
@@ -34,9 +34,9 @@
       <title>Daily Meeting Overview</title>
       <table>
         <search>
-          <query>`webex_index` `meeting_usage_history_sourcetype`| stats sum(Attended) as "Total # of Participants" by Date
-| join Date [search `webex_index` `meeting_usage_history_sourcetype` | stats count(SessionID) as "Number of Session" by Date]
-| table Date , "Number of Session", "Total # of Participants"</query>
+          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list"| stats sum(Attended) as "Total Number of Participants" by Date
+| join Date [search `webex_index` sourcetype="cisco:webex:meetingusagehistory:list" | stats count(SessionID) as "Total Number of Sessions" by Date]
+| table Date , "Total Number of Sessions", "Total Number of Participants"</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
           <sampleRatio>1</sampleRatio>
@@ -56,17 +56,16 @@
       <title>WebEx Overview</title>
       <table>
         <search>
-          <query>`webex_index` `meeting_usage_history_sourcetype` SessionID=* Attended=* 
+          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list"  SessionID=* Attended=* 
 | eval Conference = Topic . " (" . Attended . " users)" 
 | eval threshold=1 
 | sort Date, - Attended 
 | where Attended &gt; threshold 
 | fields - threshold 
 | stats list(Conference) as "Large Conferences" by Date
-| join Date [search `webex_index` `meeting_usage_history_sourcetype`| stats sum(Attended) as "Total # of Participants" by Date]
-| join Date [search `webex_index` `meeting_usage_history_sourcetype` | stats count(SessionID) as "Number of Session" by Date]
-
-| table Date , "Number of Session", "Total # of Participants", "Large Conferences"</query>
+| join Date [search `webex_index` sourcetype="cisco:webex:meetingusagehistory:list"| stats sum(Attended) as "Total Number of Participants" by Date]
+| join Date [search `webex_index` sourcetype="cisco:webex:meetingusagehistory:list" | stats count(SessionID) as "Total Number of Sessions" by Date]
+| table Date , "Total Number of Sessions", "Total Number of Participants", "Large Conferences"</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
           <sampleRatio>1</sampleRatio>
@@ -79,11 +78,11 @@
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
-        <format type="color" field="Total # of Participants">
+        <format type="color" field="Total Number of Participants">
           <colorPalette type="minMidMax" maxColor="#53A051" minColor="#FFFFFF"></colorPalette>
           <scale type="minMidMax"></scale>
         </format>
-        <format type="color" field="Number of Session">
+        <format type="color" field="Total Number of Sessions">
           <colorPalette type="minMidMax" maxColor="#53A051" minColor="#FFFFFF"></colorPalette>
           <scale type="minMidMax"></scale>
         </format>
@@ -99,7 +98,7 @@
       <title>List of Large Conferences</title>
       <table>
         <search>
-          <query>`webex_index` `meeting_usage_history_sourcetype` SessionID=* Attended=* 
+          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list" SessionID=* Attended=* 
 | table Date Topic hostName Attended
 | eval threshold=1 
 | where Attended &gt; threshold
@@ -129,7 +128,7 @@
       <title>Prediction for number of Conference</title>
       <chart>
         <search>
-          <query>`webex_index` `meeting_usage_history_sourcetype` SessionID=* Attended=* Duration=* 
+          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list" SessionID=* Attended=* Duration=* 
 | timechart count(SessionID) span=1d as SessionID | predict SessionID</query>
           <earliest>0</earliest>
           <sampleRatio>1</sampleRatio>

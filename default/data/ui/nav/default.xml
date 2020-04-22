@@ -1,8 +1,13 @@
 <nav search_view="search">
-  <view name="webex_analytics" default='true'/>
-  <view name="search" />
-  <view name="datasets" />
-  <view name="reports" />
-  <view name="alerts" />
-  <view name="dashboards" />
+<collection label="WebEx">
+  <view name="webex_ops" default='true'/>
+  <view name="webex_activities" />
+  </collection>
+  <collection label="Other">
+    <view name="search" />
+    <view name="datasets" />
+    <view name="reports" />
+    <view name="alerts" />
+    <view name="dashboards" />
+  </collection>
 </nav>
