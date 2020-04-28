@@ -1,0 +1,142 @@
+<dashboard theme="dark" stylesheet="style.css" script="webex_dashboard_overview.js">
+  <label>WebEx Overview</label>
+  <row>
+    <panel>
+      <html id="header_today">
+        <div>
+          <h1 class="header_text">Today's Statistics</h1>
+        </div>
+        <style>
+          #header_today {
+            background-color: #059ed9;
+          }
+          .header_text{
+            color: #fff;
+            margin: 0px !important;
+          }
+        </style>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>`webex_index` sourcetype="cisco:webex:meetings:general:summarysession" 
+| stats dc(confID) as "Scheduled Meetings"</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">250</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="underLabel">Number of Scheduled Meetings (Today)</option>
+      </single>
+    </panel>
+    <panel>
+      <chart>
+        <search>
+          <query>`webex_index` sourcetype="cisco:webex:meetings:general:summarysession" 
+| timechart span=1h dc(confID) as "Scheduled Meetings"</query>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.fieldColors">{"Scheduled Meetings": 0x3bbbdd}</option>
+        <option name="charting.legend.placement">top</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html id="header_historical">
+        <div>
+          <h1 class="header_text">Last 14 days Analysis</h1>
+        </div>
+        <style>
+          #header_historical {
+            background-color: #059ed9;
+            margin: 0px;
+          }
+        </style>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list" duration=* confID=*
+| bin span=1d _time
+| stats dc(confID) as "Number of Meetings" by _time
+| stats median("Number of Meetings") as median_meeting_per_day</query>
+          <earliest>-14d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">250</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="underLabel">Median Number of Meetings/Day</option>
+      </single>
+    </panel>
+    <panel>
+      <chart>
+        <search>
+          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list" duration=*
+| timechart span=1d dc(confID) as "Number of Meetings" avg(duration) as "Average Meeting Duration (min)"</query>
+          <earliest>-14d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisY2.enabled">1</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.overlayFields">"Average Meeting Duration (min)"</option>
+        <option name="charting.fieldColors">{"Number of Meetings": 0x3bbbdd}</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">top</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
+| bin span=1d _time
+| stats dc(email) as "Participants" by _time
+| stats median(Participants)</query>
+          <earliest>-14d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="underLabel">Median Number of Participants/Day</option>
+        <option name="height">250</option>
+      </single>
+    </panel>
+    <panel>
+      <chart>
+        <search>
+          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
+| timechart span=1d dc(email) as "Participants"</query>
+          <earliest>-14d@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">top</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="charting.fieldColors">{"Participants": 0x3bbbdd}</option>
+      </chart>
+    </panel>
+  </row>
+</dashboard>

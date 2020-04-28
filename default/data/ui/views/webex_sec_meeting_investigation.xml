@@ -1,0 +1,170 @@
+<form theme="dark" stylesheet="style.css">
+  <label>WebEx Meeting Investigation</label>
+  <description>Disclaimer: Only meetings that ended prior to 12AM two days ago are shown.</description>
+  <search>
+    <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
+| where cidrmatch("$ip$",ipAddress)
+| search name="*$username$*" OR email="*$username$*"
+| stats min(_time) as _time list(name) as Username, list(email) as Email, list(participantType) as "Participant Type", list(clientAgent) as "Client Agent", list(ipAddress) as IP, dc(email) as Participants by confName confID
+| sort - _time
+| fields _time confName confID Participants Username Email "Participant Type" "Client Agent" IP
+| rename confName as "Meeting Name"</query>
+    <earliest>$time_tok.earliest$</earliest>
+    <latest>$time_tok.latest$</latest>
+    <done>
+      <set token="meetings_job_sid">$job.sid$</set>
+    </done>
+  </search>
+  <fieldset submitButton="false">
+    <input type="time" token="time_tok" searchWhenChanged="true">
+      <label>Time</label>
+      <default>
+        <earliest>-30d@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="username" searchWhenChanged="true">
+      <label>Username</label>
+      <default>*</default>
+    </input>
+    <input id="input_ip" type="text" token="ip" searchWhenChanged="true">
+      <label>IP Address (CIDR Notation - eg: 10.0.0.1/32)</label>
+      <default>0.0.0.0/0</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <title>Unique Usernames</title>
+        <search>
+          <query>| loadjob $meetings_job_sid$
+| stats dc(Username)</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Unique Emails</title>
+        <search>
+          <query>| loadjob $meetings_job_sid$
+| stats dc(Email)</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Unique Meetings</title>
+        <search>
+          <query>| loadjob $meetings_job_sid$
+| stats dc(confID)</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Unique Client Agent</title>
+        <search>
+          <query>| loadjob $meetings_job_sid$
+| stats dc("Client Agent")</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Unique IP Addresses</title>
+        <search>
+          <query>| loadjob $meetings_job_sid$
+| stats dc(IP)</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <map>
+        <title>User Location by IP Addresses</title>
+        <search>
+          <query>| loadjob $meetings_job_sid$
+| mvexpand IP
+| iplocation IP
+| geostats dc(Email) by City
+| fields - VALUE</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">250</option>
+        <option name="mapping.map.center">(18.65,4.22)</option>
+        <option name="mapping.map.zoom">1</option>
+        <option name="mapping.type">marker</option>
+        <option name="refresh.display">progressbar</option>
+      </map>
+    </panel>
+    <panel>
+      <chart>
+        <title>Unique Meetings vs Participants</title>
+        <search>
+          <query>| loadjob $meetings_job_sid$
+| timechart span=1d dc(Email) as "Unique Participants" dc("confID") as "Unique Meetings"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisY.abbreviation">auto</option>
+        <option name="charting.axisY2.abbreviation">auto</option>
+        <option name="charting.axisY2.enabled">1</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.overlayFields">"Unique Participants"</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">top</option>
+        <option name="height">250</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>WebEx Meetings Details</title>
+        <search>
+          <query>| loadjob $meetings_job_sid$</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">true</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <link target="_blank">search?q=%60webex_index%60%20sourcetype=%22cisco:webex:meetings:history:meetingattendeehistory%22%20confID=%22$row.confID$%22&amp;earliest=$time_tok.earliest$&amp;latest=$time_tok.latest$</link>
+        </drilldown>
+      </table>
+      <html>
+        <b>Note:</b> A User may appear multiple times within a Meeting if the User join/rejoin using different device types or from a different IP address.
+      </html>
+    </panel>
+  </row>
+</form>
