@@ -122,22 +122,6 @@
   </row>
   <row>
     <panel>
-      <chart>
-        <title>Client Device Type (User Agent)</title>
-        <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
-| stats count by email clientAgent
-| stats count by clientAgent</query>
-          <earliest>$time_tok.earliest$</earliest>
-          <latest>$time_tok.latest$</latest>
-        </search>
-        <option name="charting.chart">pie</option>
-        <option name="charting.drilldown">none</option>
-        <option name="height">250</option>
-        <option name="refresh.display">progressbar</option>
-      </chart>
-    </panel>
-    <panel>
       <map>
         <title>Participants by Country</title>
         <search base="meeting_location">
@@ -177,6 +161,39 @@
         <title>Participants by Country</title>
         <search base="meeting_location">
           <query>| noop</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="height">250</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Participants by Email Domain</title>
+        <search>
+          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
+| rex field=email "@(?&lt;email_domain&gt;.*)"
+| stats count by email_domain</query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Client Device Type (User Agent)</title>
+        <search>
+          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
+| stats count by email clientAgent
+| stats count by clientAgent</query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
         </search>
         <option name="charting.chart">pie</option>
         <option name="charting.drilldown">none</option>

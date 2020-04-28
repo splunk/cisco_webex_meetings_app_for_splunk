@@ -1,4 +1,4 @@
-<dashboard theme="dark" stylesheet="style.css" script="webex_dashboard_overview.js">
+<dashboard theme="dark" stylesheet="style.css" script="webex_dashboard_overview_v2.js">
   <label>WebEx Overview</label>
   <row>
     <panel>
@@ -17,6 +17,19 @@
         </style>
       </html>
     </panel>
+    <panel>
+      <html id="header_historical">
+        <div>
+          <h1 class="header_text">Historical Meetings Analysis</h1>
+        </div>
+        <style>
+          #header_historical {
+            background-color: #059ed9;
+            margin: 0px;
+          }
+        </style>
+      </html>
+    </panel>
   </row>
   <row>
     <panel>
@@ -28,12 +41,45 @@
           <latest>now</latest>
         </search>
         <option name="drilldown">none</option>
-        <option name="height">250</option>
         <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
         <option name="refresh.display">progressbar</option>
         <option name="underLabel">Number of Scheduled Meetings (Today)</option>
       </single>
     </panel>
+    <panel>
+      <single>
+        <search>
+          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list" duration=* confID=*
+| bin span=1d _time
+| stats dc(confID) as "Number of Meetings" by _time
+| stats median("Number of Meetings") as median_meeting_per_day</query>
+          <earliest>-14d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="underLabel">Median Number of Meetings/Day</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <search>
+          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
+| bin span=1d _time
+| stats dc(email) as "Participants" by _time
+| stats median(Participants)</query>
+          <earliest>-14d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="underLabel">Median Number of Participants/Day</option>
+      </single>
+    </panel>
+  </row>
+  <row>
     <panel>
       <chart>
         <search>
@@ -49,40 +95,9 @@
         <option name="charting.legend.placement">top</option>
         <option name="refresh.display">progressbar</option>
       </chart>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <html id="header_historical">
-        <div>
-          <h1 class="header_text">Last 14 days Analysis</h1>
-        </div>
-        <style>
-          #header_historical {
-            background-color: #059ed9;
-            margin: 0px;
-          }
-        </style>
+      <html>
+        <b>Description:</b> Number of Scheduled Meetings that started for today.
       </html>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <single>
-        <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list" duration=* confID=*
-| bin span=1d _time
-| stats dc(confID) as "Number of Meetings" by _time
-| stats median("Number of Meetings") as median_meeting_per_day</query>
-          <earliest>-14d</earliest>
-          <latest>now</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="height">250</option>
-        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
-        <option name="refresh.display">progressbar</option>
-        <option name="underLabel">Median Number of Meetings/Day</option>
-      </single>
     </panel>
     <panel>
       <chart>
@@ -101,25 +116,9 @@
         <option name="charting.legend.placement">top</option>
         <option name="refresh.display">progressbar</option>
       </chart>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <single>
-        <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
-| bin span=1d _time
-| stats dc(email) as "Participants" by _time
-| stats median(Participants)</query>
-          <earliest>-14d</earliest>
-          <latest>now</latest>
-        </search>
-        <option name="drilldown">none</option>
-        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
-        <option name="refresh.display">progressbar</option>
-        <option name="underLabel">Median Number of Participants/Day</option>
-        <option name="height">250</option>
-      </single>
+      <html>
+        <b>Description:</b> Number of Meetings during the last 14 days. Only meetings that ended prior to 12AM two days ago are shown.
+      </html>
     </panel>
     <panel>
       <chart>
@@ -137,6 +136,9 @@
         <option name="refresh.display">progressbar</option>
         <option name="charting.fieldColors">{"Participants": 0x3bbbdd}</option>
       </chart>
+      <html>
+        <b>Description:</b> Number of Participants during the last 14 days. Only meetings that ended prior to 12AM two days ago are shown.
+      </html>
     </panel>
   </row>
 </dashboard>

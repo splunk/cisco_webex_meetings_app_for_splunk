@@ -163,7 +163,7 @@
         </drilldown>
       </table>
       <html>
-        <b>Note:</b> A User may appear multiple times within a Meeting if the User join/rejoin using different device types or from a different IP address.
+        <b>Note:</b> A User may appear multiple times within a Meeting if the User joins/rejoins using different device types or from a different IP address.
       </html>
     </panel>
   </row>
