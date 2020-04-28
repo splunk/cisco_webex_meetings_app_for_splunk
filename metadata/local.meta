@@ -1,0 +1,33 @@
+[macros/webex_index]
+version = 8.0.2.1
+modtime = 1588089988.318130000
+
+[views/webex_analytics]
+version = 8.0.2.1
+modtime = 1588103139.561713000
+
+[nav/default]
+version = 8.0.2.1
+modtime = 1588103023.473106000
+
+[views/webex_overview]
+owner = ptang
+version = 8.0.2.1
+modtime = 1588106521.754214000
+
+[views/webex_data_quality]
+owner = ptang
+version = 8.0.2.1
+modtime = 1588096172.096808000
+
+[views/webex_sec_overview]
+owner = ptang
+version = 8.0.2.1
+modtime = 1588101023.507666000
+
+[views/webex_sec_meeting_investigation]
+access = read : [ * ], write : [ admin, power ]
+export = none
+owner = ptang
+version = 8.0.2.1
+modtime = 1588102998.797127000
