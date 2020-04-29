@@ -1,7 +1,7 @@
 <nav search_view="search">
   <view name="webex_overview" default='true' />
   <collection label="Meetings">
-    <view name="webex_analytics" default='true' />
+    <view name="webex_meetings" />
     <view name="webex_activities" />
   </collection>
   <collection label="Security">

@@ -50,7 +50,7 @@
       <single>
         <title>Participants</title>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetingattendeehistory:list"
+          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
 | stats dc(email) as participants by confID
 | stats sum(participants)</query>
           <earliest>$time_tok.earliest$</earliest>
@@ -292,7 +292,7 @@
       <chart>
         <title>Number of Meetings by Number of Participants</title>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetingattendeehistory:list"
+          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
 | bin span=1d _time
 | stats dc(email) as participants by _time confID
 | bin span=log2 participants
