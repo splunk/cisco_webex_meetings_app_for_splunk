@@ -1,5 +1,5 @@
 <form theme="dark" stylesheet="style.css">
-  <label>WebEx Meeting Investigation</label>
+  <label>WebEx Meetings Investigation</label>
   <description>Disclaimer: Only meetings that ended prior to 12AM two days ago are shown.</description>
   <search>
     <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"

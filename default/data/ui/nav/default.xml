@@ -6,7 +6,7 @@
   </collection>
   <collection label="Security">
     <view name="webex_sec_overview" />
-    <view name="webex_sec_meeting_investigation" />
+    <view name="webex_sec_meetings_investigation" />
   </collection>
   	<view name="webex_data_quality" />
   <collection label="Others">

@@ -4,16 +4,16 @@ modtime = 1588089988.318130000
 
 [views/webex_analytics]
 version = 8.0.2.1
-modtime = 1588109184.304887000
+modtime = 1588118139.123567000
 
 [nav/default]
 version = 8.0.2.1
-modtime = 1588103023.473106000
+modtime = 1588118250.746207000
 
 [views/webex_overview]
 owner = ptang
 version = 8.0.2.1
-modtime = 1588113674.846917000
+modtime = 1588117635.600515000
 
 [views/webex_data_quality]
 owner = ptang
@@ -30,4 +30,11 @@ access = read : [ * ], write : [ admin, power ]
 export = none
 owner = ptang
 version = 8.0.2.1
-modtime = 1588113756.640809000
+modtime = 1588118209.677601000
+
+[views/webex_sec_meetings_investigation]
+access = read : [ * ], write : [ admin, power ]
+export = none
+owner = ptang
+version = 8.0.2.1
+modtime = 1588118292.514818000

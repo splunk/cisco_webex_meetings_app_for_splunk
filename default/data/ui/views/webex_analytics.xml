@@ -4,7 +4,7 @@
   <search id="meeting_duration">
     <query>
       <![CDATA[
-`webex_index` sourcetype="cisco:webex:meetingusagehistory:list" confID=* totalParticipants=* duration=* 
+`webex_index` sourcetype="cisco:webex:meetings:history:meetingusagehistory" confID=* totalParticipants=* duration=* 
 | stats median(duration) as "MedianDuration", max(duration) as "MaxDuration", min(duration) as "MinDuration", dc(confID) as "UniqueMeetings" 
       ]]>
     </query>
@@ -48,12 +48,11 @@
     </panel>
     <panel>
       <single>
-        <title>Attendees</title>
+        <title>Participants</title>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list" confID=* totalParticipants=* 
-| stats max(totalParticipants) as totalParticipants by confID 
-| stats sum(totalParticipants) as totalParticipants 
-| fields totalParticipants</query>
+          <query>`webex_index` sourcetype="cisco:webex:meetingattendeehistory:list"
+| stats dc(email) as participants by confID
+| stats sum(participants)</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
           <sampleRatio>1</sampleRatio>
@@ -202,7 +201,7 @@
       <chart>
         <title>Meeting Types</title>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list" confID=* totalParticipants=* duration=* meetingType=*
+          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingusagehistory" confID=* totalParticipants=* duration=* meetingType=*
 | stats count by meetingType</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
@@ -248,7 +247,7 @@
       <chart>
         <title>Meeting Count by Duration</title>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list" confID=* duration=* 
+          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingusagehistory" confID=* duration=* 
 | timechart span=1h dc(confID) as "Unique Meetings" avg(duration) as "Average Duration (min)"</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
@@ -293,11 +292,11 @@
       <chart>
         <title>Number of Meetings by Number of Participants</title>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetingusagehistory:list" confID=* duration=* totalParticipants=*
-| bin span=1h _time 
-| stats sum(totalParticipants) as totalParticipants by confID _time 
-| bin totalParticipants span=log2 
-| chart limit=0 count by _time totalParticipants</query>
+          <query>`webex_index` sourcetype="cisco:webex:meetingattendeehistory:list"
+| bin span=1d _time
+| stats dc(email) as participants by _time confID
+| bin span=log2 participants
+| chart limit=0 dc(confID) as meetings by _time participants</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
           <sampleRatio>1</sampleRatio>
