@@ -21,10 +21,10 @@ The **Cisco WebEx Meetings for Splunk** app provides the interface for searches,
 
 
 - Change the macro named `webex_index` to pin accurate index, by default App uses **webex** as index name.
-     - Select Settings > Advanced Search > Search macros
-     - Filter: webex_index
+     - Select **Settings** > **Advanced Search** > **Search macros**
+     - Filter: **webex_index**
      - Click on macro named **webex_index** from result
-     - Change the definition to appropriate index. For example, if index name comprising webex data is `webex_dev`, your **Definition** box should be `index=webex_dev`
+     - Change the definition to appropriate index. For example, if index name comprising webex data is **`webex_dev`**, your **Definition** box should be **`index=webex_dev`**
 
 ## Contributors
 
