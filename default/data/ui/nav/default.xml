@@ -8,7 +8,7 @@
     <view name="webex_sec_overview" />
     <view name="webex_sec_meetings_investigation" />
   </collection>
-  	<view name="webex_data_quality" />
+  <view name="webex_data_quality" />
   <collection label="Others">
     <view name="search" />
     <view name="datasets" />
