@@ -8,4 +8,4 @@ The **Cisco WebEx Meetings for Splunk** app provides the interface for searches,
 - Official Release
 
 ## License
-Code licensed under [Apache 2.0](./LICENSE). All non-text documentation provided herein, including screenshots, logos and images, are provided for reference only and remain the property of Splunk or its licensors.
+Code licensed under [Apache 2.0](./LICENSE.md). All non-text documentation provided herein, including screenshots, logos and images, are provided for reference only and remain the property of Splunk or its licensors.
