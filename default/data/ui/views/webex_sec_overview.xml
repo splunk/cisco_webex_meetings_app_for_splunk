@@ -1,0 +1,205 @@
+<form theme="dark" stylesheet="style.css">
+  <label>WebEx Security Overview</label>
+  <description>Disclaimer: Only meetings that ended prior to 12AM two days ago are shown.</description>
+  <search id="metrics">
+    <query>
+      <![CDATA[
+`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
+| iplocation ipAddress
+| timechart span=1d dc(email) as "Unique Participants" dc(ipAddress) as "Unique IPs" dc(Country) as Countries
+      ]]>
+    </query>
+    <earliest>$time_tok.earliest$</earliest>
+    <latest>$time_tok.latest$</latest>
+  </search>
+  <search id="meeting_location">
+    <query>
+      <![CDATA[
+`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory" 
+| stats count by ipAddress email
+| iplocation ipAddress
+| stats dc(email) as "Unique Participants" by Country
+      ]]>
+    </query>
+    <earliest>$time_tok.earliest$</earliest>
+    <latest>$time_tok.latest$</latest>
+  </search>
+  <fieldset submitButton="false">
+    <input type="time" token="time_tok" searchWhenChanged="true">
+      <label>Time</label>
+      <default>
+        <earliest>-30d@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <title>Unique Participants</title>
+        <search>
+          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
+| stats dc(email) as "Unique Participants"</query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Unique IP Addresses</title>
+        <search>
+          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
+| stats dc(ipAddress) as "Unique IPs"</query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Unique Countries</title>
+        <search>
+          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
+| stats count by ipAddress
+| iplocation ipAddress
+| stats dc(Country)</query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Unique Participants Over Time</title>
+        <search base="metrics">
+          <query>| fields _time "Unique Participants"</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">top</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Unique IP Addresses Over Time</title>
+        <search base="metrics">
+          <query>| fields _time "Unique IPs"</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">top</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Unique Countries Over Time</title>
+        <search base="metrics">
+          <query>| fields _time "Countries"</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">top</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <map>
+        <title>Participants by Country</title>
+        <search base="meeting_location">
+          <query>
+| geom geo_countries featureIdField="Country"</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">250</option>
+        <option name="mapping.choroplethLayer.colorBins">5</option>
+        <option name="mapping.choroplethLayer.colorMode">auto</option>
+        <option name="mapping.choroplethLayer.maximumColor">0xaf575a</option>
+        <option name="mapping.choroplethLayer.minimumColor">0x62b3b2</option>
+        <option name="mapping.choroplethLayer.neutralPoint">0</option>
+        <option name="mapping.choroplethLayer.shapeOpacity">0.75</option>
+        <option name="mapping.choroplethLayer.showBorder">1</option>
+        <option name="mapping.data.maxClusters">100</option>
+        <option name="mapping.legend.placement">bottomright</option>
+        <option name="mapping.map.center">(28.92,11.6)</option>
+        <option name="mapping.map.panning">1</option>
+        <option name="mapping.map.scrollZoom">0</option>
+        <option name="mapping.map.zoom">1</option>
+        <option name="mapping.markerLayer.markerMaxSize">50</option>
+        <option name="mapping.markerLayer.markerMinSize">10</option>
+        <option name="mapping.markerLayer.markerOpacity">0.8</option>
+        <option name="mapping.showTiles">1</option>
+        <option name="mapping.tileLayer.maxZoom">7</option>
+        <option name="mapping.tileLayer.minZoom">0</option>
+        <option name="mapping.tileLayer.tileOpacity">1</option>
+        <option name="mapping.type">choropleth</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </map>
+    </panel>
+    <panel>
+      <chart>
+        <title>Participants by Country</title>
+        <search base="meeting_location">
+          <query>| noop</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="height">250</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Participants by Email Domain</title>
+        <search>
+          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
+| rex field=email "@(?&lt;email_domain&gt;.*)"
+| stats count by email_domain</query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Client Device Type (User Agent)</title>
+        <search>
+          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
+| stats count by email clientAgent
+| stats count by clientAgent</query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="height">250</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+</form>
