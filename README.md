@@ -16,15 +16,15 @@ The **Cisco WebEx Meetings for Splunk** app provides the interface for searches,
 - Technology Add-on to retrieve Webex meetings data: [WebEx Meetings Add-on for Splunk](https://splunkbase.splunk.com/app/4991/)
 
 - My dashboard is empty.
-    - Verify whether TA is installed and configured properly to get data.
-    - Check the index name! Default value is *webex* in macro named *webex_dev* .
+    - Verify whether the TA (*WebEx Meetings Add-on for Splunk*) is installed and configured properly to get data.
+    - Check the index name! Default value is **webex** in macro named **webex_dev** .
 
 
-- Change the macro named `webex_index` to pin accurate index, by default App uses **webex** as index name.
+- Change the macro named **webex_index** to pin accurate index, by default App uses **webex** as index name.
      - Select **Settings** > **Advanced Search** > **Search macros**
      - Filter: **webex_index**
      - Click on macro named **webex_index** from result
-     - Change the definition to appropriate index. For example, if index name comprising webex data is **`webex_dev`**, your **Definition** box should be **`index=webex_dev`**
+     - Change the definition to appropriate index. For example, if index name comprising webex data is **webex_dev**, your **Definition** box should be **index=webex_dev**
 
 ## Contributors
 
