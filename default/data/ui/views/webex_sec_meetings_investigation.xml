@@ -5,7 +5,9 @@
     <query>`webex_index` `attendee_sourcetypes`
 | where cidrmatch("$ip$",ipAddress)
 | search name="*$username$*" OR email="*$username$*"
-| stats min(_time) as _time list(name) as Username, list(email) as Email, list(participantType) as "Participant Type", list(clientAgent) as "Client Agent", list(ipAddress) as IP, dc(email) as Participants by confName confID
+| eval uniqueParticipantIdentifier = coalesce(email, coalesce(name, ipAddress))
+| eval confName=coalesce(confName, "Default Conference Name")
+| stats min(_time) as _time list(name) as Username, list(email) as Email, list(participantType) as "Participant Type", list(clientAgent) as "Client Agent", list(ipAddress) as IP, dc(uniqueParticipantIdentifier) as Participants by confName confID
 | sort - _time
 | fields _time confName confID Participants Username Email "Participant Type" "Client Agent" IP
 | rename confName as "Meeting Name"</query>

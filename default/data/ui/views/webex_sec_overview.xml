@@ -5,8 +5,9 @@
     <query>
       <![CDATA[
 `webex_index` `attendee_sourcetypes`
-| iplocation ipAddress
-| timechart span=1d dc(email) as "Unique Participants" dc(ipAddress) as "Unique IPs" dc(Country) as Countries
+| iplocation ipAddress 
+| eval uniqueParticipantIdentifier = coalesce(email, coalesce(name, ipAddress))
+| timechart span=1d dc(uniqueParticipantIdentifier) as "Unique Participants" dc(ipAddress) as "Unique IPs" dc(Country) as Countries
       ]]>
     </query>
     <earliest>$time_tok.earliest$</earliest>
@@ -18,7 +19,8 @@
 `webex_index` `attendee_sourcetypes` 
 | stats count by ipAddress email
 | iplocation ipAddress
-| stats dc(email) as "Unique Participants" by Country
+| eval uniqueParticipantIdentifier = coalesce(email, coalesce(name, ipAddress))
+| stats dc(uniqueParticipantIdentifier) as "Unique Participants" by Country
       ]]>
     </query>
     <earliest>$time_tok.earliest$</earliest>
@@ -38,8 +40,8 @@
       <single>
         <title>Unique Participants</title>
         <search>
-          <query>`webex_index` `attendee_sourcetypes`
-| stats dc(email) as "Unique Participants"</query>
+          <query>`webex_index` `attendee_sourcetypes` | eval uniqueParticipantIdentifier = coalesce(email, coalesce(name, ipAddress))
+| stats dc(uniqueParticipantIdentifier) as "Unique Participants"</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
         </search>

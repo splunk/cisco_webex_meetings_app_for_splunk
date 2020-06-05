@@ -5,7 +5,7 @@
     <query>
       <![CDATA[
 `webex_index` `session_sourcetypes` confID=* totalParticipants=* duration=* 
-| stats median(duration) as "MedianDuration", max(duration) as "MaxDuration", min(duration) as "MinDuration", dc(confID) as "UniqueMeetings" 
+| stats median(duration) as "MedianDuration", max(duration) as "MaxDuration", min(duration) as "MinDuration", sum(duration) as "TotalDuration", dc(confID) as "UniqueMeetings" 
       ]]>
     </query>
     <earliest>$time_tok.earliest$</earliest>
@@ -23,7 +23,7 @@
   <row>
     <panel>
       <single>
-        <title>Unique Meetings</title>
+        <title>Total Meetings</title>
         <search base="meeting_duration">
           <query>| fields UniqueMeetings</query>
         </search>
@@ -48,10 +48,10 @@
     </panel>
     <panel>
       <single>
-        <title>Participants</title>
+        <title>Total Participants</title>
         <search>
-          <query>`webex_index` `attendee_sourcetypes`
-| stats dc(email) as participants by confID
+          <query>`webex_index` `attendee_sourcetypes` | eval uniqueParticipantIdentifier = coalesce(email, coalesce(name, ipAddress))
+| stats count(uniqueParticipantIdentifier) as participants by confID
 | stats sum(participants)</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
@@ -78,7 +78,32 @@
     </panel>
     <panel>
       <single>
-        <title>Median Meeting (Minutes)</title>
+        <title>Total Meeting Minutes</title>
+        <search base="meeting_duration">
+          <query>| fields TotalDuration</query>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0.00</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="rangeValues">[20,100,300,400]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Median Meeting Minutes</title>
         <search base="meeting_duration">
           <query>| fields MedianDuration</query>
         </search>
@@ -103,34 +128,9 @@
     </panel>
     <panel>
       <single>
-        <title>Longest Meeting (Minutes)</title>
+        <title>Longest Meeting Minutes</title>
         <search base="meeting_duration">
           <query>| fields "MaxDuration"</query>
-        </search>
-        <option name="colorBy">value</option>
-        <option name="colorMode">block</option>
-        <option name="drilldown">none</option>
-        <option name="numberPrecision">0.00</option>
-        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
-        <option name="rangeValues">[20,100,300,400]</option>
-        <option name="refresh.display">progressbar</option>
-        <option name="showSparkline">1</option>
-        <option name="showTrendIndicator">1</option>
-        <option name="trellis.enabled">0</option>
-        <option name="trellis.scales.shared">1</option>
-        <option name="trellis.size">medium</option>
-        <option name="trendColorInterpretation">standard</option>
-        <option name="trendDisplayMode">absolute</option>
-        <option name="unitPosition">after</option>
-        <option name="useColors">0</option>
-        <option name="useThousandSeparators">1</option>
-      </single>
-    </panel>
-    <panel>
-      <single>
-        <title>Shortest Meeting (Minutes)</title>
-        <search base="meeting_duration">
-          <query>| fields MinDuration</query>
         </search>
         <option name="colorBy">value</option>
         <option name="colorMode">block</option>
@@ -201,7 +201,7 @@
       <chart>
         <title>Meeting Types</title>
         <search>
-          <query>`webex_index` `session_sourcetypes` confID=* totalParticipants=* duration=* meetingType=*
+          <query>`webex_index` `session_sourcetypes` | eval meetingType=coalesce(meetingType, "Training Center")
 | stats count by meetingType</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
@@ -293,8 +293,8 @@
         <title>Number of Meetings by Number of Participants</title>
         <search>
           <query>`webex_index` `attendee_sourcetypes`
-| bin span=1d _time
-| stats dc(email) as participants by _time confID
+| bin span=1d _time | eval uniqueParticipantIdentifier = coalesce(email, coalesce(name, ipAddress))
+| stats dc(uniqueParticipantIdentifier) as participants by _time confID
 | bin span=log2 participants
 | chart limit=0 dc(confID) as meetings by _time participants</query>
           <earliest>$time_tok.earliest$</earliest>
@@ -344,7 +344,7 @@
           <query>`webex_index` `attendee_sourcetypes`
 | iplocation ipAddress 
 | eval City=if(like(City, ""), "Unknown", City) 
-| geostats latfield=lat longfield=lon count(confName) by City</query>
+| geostats latfield=lat longfield=lon count(confID) by City</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
           <sampleRatio>1</sampleRatio>
