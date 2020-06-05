@@ -344,7 +344,7 @@
           <query>`webex_index` `attendee_sourcetypes`
 | iplocation ipAddress 
 | eval City=if(like(City, ""), "Unknown", City) 
-| geostats latfield=lat longfield=lon count(confName) by City</query>
+| geostats latfield=lat longfield=lon count(confID) by City</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
           <sampleRatio>1</sampleRatio>
