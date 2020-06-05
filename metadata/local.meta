@@ -1,0 +1,33 @@
+[app/install/install_source_checksum]
+version = 8.0.2
+modtime = 1591299270.832816000
+
+[macros/webex_index]
+version = 8.0.2
+modtime = 1591299318.223746000
+
+[macros/session_sourcetypes]
+access = read : [ * ], write : [ admin, power ]
+export = none
+owner = admin
+version = 8.0.2
+modtime = 1591299810.087515000
+
+[macros/attendee_sourcetypes]
+access = read : [ * ], write : [ admin, power ]
+export = none
+owner = admin
+version = 8.0.2
+modtime = 1591299703.755066000
+
+[views/webex_meetings]
+version = 8.0.2
+modtime = 1591315736.793007000
+
+[views/webex_activities]
+version = 8.0.2
+modtime = 1591316093.164087000
+
+[views/webex_sec_overview]
+version = 8.0.2
+modtime = 1591317236.546614000

@@ -1,0 +1,19 @@
+<nav search_view="search">
+  <view name="webex_overview" default='true' />
+  <collection label="Meetings">
+    <view name="webex_meetings" />
+    <view name="webex_activities" />
+  </collection>
+  <collection label="Security">
+    <view name="webex_sec_overview" />
+    <view name="webex_sec_meetings_investigation" />
+  </collection>
+  <view name="webex_data_quality" />
+  <collection label="Others">
+    <view name="search" />
+    <view name="datasets" />
+    <view name="reports" />
+    <view name="alerts" />
+    <view name="dashboards" />
+  </collection>
+</nav>
