@@ -12,16 +12,15 @@
   </fieldset>
   <row>
     <panel>
+      <title>Meeting Sessions and Participants</title>
       <table>
-        <title>Meeting Sessions and Participants</title>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingusagehistory" 
-| bin span=1d _time
-| stats max(totalParticipants) as totalParticipants by _time confID
-| stats dc(confID) as "Total Number of Sessions" sum(totalParticipants) as "Total Participants" by _time
-| sort - _time
-| eval _time = strftime(_time,"%F")
-| rename _time as Date</query>
+          <query>`webex_index` `session_sourcetypes`| eval
+                        Date=strftime(_time, "%m/%d/%Y") | stats sum(totalParticipants) as "Total Number of
+                        Participants" by Date
+                        | join Date [search `webex_index` `session_sourcetypes`
+                        | eval Date=strftime(_time, "%m/%d/%Y") | stats count(confID) as "Total Number of Sessions" by
+                        Date]</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
           <sampleRatio>1</sampleRatio>
@@ -39,51 +38,49 @@
   </row>
   <row>
     <panel>
+      <title>Large Conferences</title>
       <table>
-        <title>Large Meetings</title>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingusagehistory" confID=* totalParticipants=* 
-| stats min(_time) as _time max(totalParticipants) as totalParticipants by confID confName hostName
-| sort - totalParticipants
-| fields _time confName hostName confID totalParticipants
-| rename confName as "Meeting Name", hostName as "Host Name", confID as "Meeting ID", totalParticipants as "Total Participants"</query>
+          <query>`webex_index` `session_sourcetypes` confID=*
+                        totalParticipants=* | eval hostName=coalesce(hostName, "Training Center Host")
+                        | table _time confName hostName totalParticipants
+                        | eval threshold=1
+                        | where totalParticipants &gt; threshold
+                        | fields - threshold
+                        | sort _time, - totalParticipants</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
           <sampleRatio>1</sampleRatio>
         </search>
         <option name="count">20</option>
         <option name="dataOverlayMode">none</option>
-        <option name="drilldown">cell</option>
+        <option name="drilldown">none</option>
         <option name="percentagesRow">false</option>
         <option name="refresh.display">preview</option>
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
-        <format type="color" field="Total Participants">
+        <format type="color" field="totalParticipants">
           <colorPalette type="minMidMax" maxColor="#62B3B2" minColor="#FFFFFF"></colorPalette>
           <scale type="minMidMax"></scale>
         </format>
-        <drilldown>
-          <link target="_blank">search?q=%60webex_index%60%20sourcetype=%22cisco:webex:meetings:history:meetingusagehistory%22%20confID=%22$row.Meeting%20ID$%22&amp;earliest=$time_tok.earliest$&amp;latest=$time_tok.latest$</link>
-        </drilldown>
       </table>
     </panel>
   </row>
   <row>
     <panel>
+      <title>Prediction for number of Conferences</title>
       <chart>
-        <title>Number of Meetings Forecast (Based on Last 30 days)</title>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingusagehistory" confID=* totalParticipants=* duration=* 
-| timechart span=1d  dc(confID) as count
-| predict count as prediction</query>
-          <earliest>-30d@d</earliest>
-          <latest>now</latest>
+          <query>`webex_index` `session_sourcetypes` confID=*
+                        totalParticipants=* duration=*
+                        | timechart count(confID) span=1d as confID | predict confID</query>
+          <earliest>0</earliest>
           <sampleRatio>1</sampleRatio>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
-        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
         <option name="charting.axisTitleY.visibility">visible</option>
         <option name="charting.axisTitleY2.visibility">visible</option>
         <option name="charting.axisX.abbreviation">none</option>
@@ -109,7 +106,6 @@
         <option name="charting.legend.mode">standard</option>
         <option name="charting.legend.placement">right</option>
         <option name="charting.lineWidth">2</option>
-        <option name="refresh.display">progressbar</option>
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>

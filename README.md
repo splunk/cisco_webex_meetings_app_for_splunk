@@ -13,10 +13,10 @@ The **Cisco WebEx Meetings App for Splunk** app provides the interface for searc
 
 - Default Index name: `webex`
 
-- Technology Add-on to retrieve Cisco Webex meetings data: [Cisco WebEx Meetings Add-on for Splunk](https://splunkbase.splunk.com/app/4991/)
+- Technology Add-on to retrieve Webex meetings data: [WebEx Meetings Add-on for Splunk](https://splunkbase.splunk.com/app/4991/)
 
 - My dashboard is empty.
-    - Verify whether the TA (*Cisco WebEx Meetings Add-on for Splunk*) is installed and configured properly to get data.
+    - Verify whether the TA (*WebEx Meetings Add-on for Splunk*) is installed and configured properly to get data.
     - Check the index name! Default value is **webex** in macro named **webex_dev** .
 
 

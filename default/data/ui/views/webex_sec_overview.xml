@@ -4,9 +4,10 @@
   <search id="metrics">
     <query>
       <![CDATA[
-`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
-| iplocation ipAddress
-| timechart span=1d dc(email) as "Unique Participants" dc(ipAddress) as "Unique IPs" dc(Country) as Countries
+`webex_index` `attendee_sourcetypes`
+| iplocation ipAddress 
+| eval uniqueParticipantIdentifier = coalesce(email, coalesce(name, ipAddress))
+| timechart span=1d dc(uniqueParticipantIdentifier) as "Unique Participants" dc(ipAddress) as "Unique IPs" dc(Country) as Countries
       ]]>
     </query>
     <earliest>$time_tok.earliest$</earliest>
@@ -15,10 +16,11 @@
   <search id="meeting_location">
     <query>
       <![CDATA[
-`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory" 
+`webex_index` `attendee_sourcetypes` 
 | stats count by ipAddress email
 | iplocation ipAddress
-| stats dc(email) as "Unique Participants" by Country
+| eval uniqueParticipantIdentifier = coalesce(email, coalesce(name, ipAddress))
+| stats dc(uniqueParticipantIdentifier) as "Unique Participants" by Country
       ]]>
     </query>
     <earliest>$time_tok.earliest$</earliest>
@@ -38,8 +40,8 @@
       <single>
         <title>Unique Participants</title>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
-| stats dc(email) as "Unique Participants"</query>
+          <query>`webex_index` `attendee_sourcetypes` | eval uniqueParticipantIdentifier = coalesce(email, coalesce(name, ipAddress))
+| stats dc(uniqueParticipantIdentifier) as "Unique Participants"</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
         </search>
@@ -52,7 +54,7 @@
       <single>
         <title>Unique IP Addresses</title>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
+          <query>`webex_index` `attendee_sourcetypes`
 | stats dc(ipAddress) as "Unique IPs"</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
@@ -66,7 +68,7 @@
       <single>
         <title>Unique Countries</title>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
+          <query>`webex_index` `attendee_sourcetypes`
 | stats count by ipAddress
 | iplocation ipAddress
 | stats dc(Country)</query>
@@ -174,7 +176,7 @@
       <chart>
         <title>Participants by Email Domain</title>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
+          <query>`webex_index` `attendee_sourcetypes`
 | rex field=email "@(?&lt;email_domain&gt;.*)"
 | stats count by email_domain</query>
           <earliest>$time_tok.earliest$</earliest>
@@ -189,7 +191,7 @@
       <chart>
         <title>Client Device Type (User Agent)</title>
         <search>
-          <query>`webex_index` sourcetype="cisco:webex:meetings:history:meetingattendeehistory"
+          <query>`webex_index` `attendee_sourcetypes`
 | stats count by email clientAgent
 | stats count by clientAgent</query>
           <earliest>$time_tok.earliest$</earliest>
