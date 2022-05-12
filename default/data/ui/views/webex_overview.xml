@@ -1,4 +1,4 @@
-<dashboard theme="dark" stylesheet="style.css">
+<dashboard version="1.1" theme="dark" stylesheet="style.css">
   <label>WebEx Overview</label>
   <row>
     <panel>
