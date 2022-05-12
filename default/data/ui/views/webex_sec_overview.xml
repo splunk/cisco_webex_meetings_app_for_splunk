@@ -1,4 +1,4 @@
-<form theme="dark" stylesheet="style.css">
+<form version="1.1" theme="dark" stylesheet="style.css">
   <label>WebEx Security Overview</label>
   <description>Disclaimer: Only meetings that ended prior to 12AM two days ago are shown.</description>
   <search id="metrics">

@@ -1,4 +1,4 @@
-<form theme="dark" stylesheet="style.css">
+<form version="1.1" theme="dark" stylesheet="style.css">
   <label>WebEx Activities</label>
   <description>Information on session, participants, and large conferences. Disclaimer: Only meetings that ended prior to 12AM two days ago are shown.</description>
   <fieldset submitButton="false">
