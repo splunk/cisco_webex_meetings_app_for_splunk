@@ -1,11 +1,11 @@
 {
   "schemaVersion": "2.0.0",
   "info": {
-    "title": "Cisco WebEx Meetings App for Splunk",
+    "title": "Cisco Webex App for Splunk",
     "id": {
       "group": null,
       "name": "cisco_webex_meetings_app_for_splunk",
-      "version": "1.0.3"
+      "version": "2.0.0"
     },
     "author": [{
       "name": "FDSE",
@@ -13,7 +13,7 @@
       "company": "Splunk Inc."
     }],
     "releaseDate": "April 28, 2020",
-    "description": "The Cisco WebEx Meetings App for Splunk provides the interface for searches, reports, and dashboards for your Cisco WebEx Meetings video conferencing environment. It works in concert with Splunk-TA for WebEx Meetings, which connects to your Cisco WebEx Meetings data, to enable you to monitor, manage, and troubleshoot your WebEx Meetings service from a single application.",
+    "description": "The Cisco Webex App for Splunk provides the interface for searches, reports, and dashboards for your Cisco Webex environment. It works in concert with Cisco Webex Add-on for Splunk, which connects to your Cisco Webex data, to enable you to monitor, manage, and troubleshoot your Webex service from a single application.",
     "classification": {
       "intendedAudience": "IT",
       "categories": ["IT Operations", "Business Analytics"],

@@ -1,13 +1,13 @@
 <form version="1.1" theme="dark" stylesheet="style.css">
-  <label>WebEx Security Overview</label>
+  <label>Webex Meetings Security Overview</label>
   <description>Disclaimer: Only meetings that ended prior to 12AM two days ago are shown.</description>
   <search id="metrics">
     <query>
       <![CDATA[
-`webex_index` `attendee_sourcetypes`
-| iplocation ipAddress 
-| eval uniqueParticipantIdentifier = coalesce(email, coalesce(name, ipAddress))
-| timechart span=1d dc(uniqueParticipantIdentifier) as "Unique Participants" dc(ipAddress) as "Unique IPs" dc(Country) as Countries
+`webex_meeting` sourcetype="cisco:webex:meeting:qualities"
+| iplocation maskedPublicIP 
+| eval uniqueParticipantIdentifier = coalesce(webexUserEmail, coalesce(webexUserName, maskedPublicIP))
+| timechart span=1d dc(uniqueParticipantIdentifier) as "Unique Participants" dc(maskedPublicIP) as "Unique IPs" dc(Country) as Countries
       ]]>
     </query>
     <earliest>$time_tok.earliest$</earliest>
@@ -16,10 +16,10 @@
   <search id="meeting_location">
     <query>
       <![CDATA[
-`webex_index` `attendee_sourcetypes` 
-| stats count by ipAddress email
-| iplocation ipAddress
-| eval uniqueParticipantIdentifier = coalesce(email, coalesce(name, ipAddress))
+`webex_meeting` sourcetype="cisco:webex:meeting:qualities"
+| stats count by maskedPublicIP webexUserEmail
+| iplocation maskedPublicIP
+| eval uniqueParticipantIdentifier = coalesce(webexUserEmail, coalesce(webexUserName, maskedPublicIP))
 | stats dc(uniqueParticipantIdentifier) as "Unique Participants" by Country
       ]]>
     </query>
@@ -40,7 +40,7 @@
       <single>
         <title>Unique Participants</title>
         <search>
-          <query>`webex_index` `attendee_sourcetypes` | eval uniqueParticipantIdentifier = coalesce(email, coalesce(name, ipAddress))
+          <query>`webex_meeting` sourcetype="cisco:webex:meeting:qualities" | eval uniqueParticipantIdentifier = coalesce(webexUserEmail, coalesce(webexUserName, maskedPublicIP))
 | stats dc(uniqueParticipantIdentifier) as "Unique Participants"</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
@@ -54,8 +54,8 @@
       <single>
         <title>Unique IP Addresses</title>
         <search>
-          <query>`webex_index` `attendee_sourcetypes`
-| stats dc(ipAddress) as "Unique IPs"</query>
+          <query>`webex_meeting` sourcetype="cisco:webex:meeting:qualities"
+| stats dc(maskedPublicIP) as "Unique IPs"</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
         </search>
@@ -68,9 +68,9 @@
       <single>
         <title>Unique Countries</title>
         <search>
-          <query>`webex_index` `attendee_sourcetypes`
-| stats count by ipAddress
-| iplocation ipAddress
+          <query>`webex_meeting` sourcetype="cisco:webex:meeting:qualities"
+| stats count by maskedPublicIP
+| iplocation maskedPublicIP
 | stats dc(Country)</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
@@ -176,8 +176,8 @@
       <chart>
         <title>Participants by Email Domain</title>
         <search>
-          <query>`webex_index` `attendee_sourcetypes`
-| rex field=email "@(?&lt;email_domain&gt;.*)"
+          <query>`webex_meeting` sourcetype="cisco:webex:meeting:qualities"
+| rex field=webexUserEmail "@(?&lt;email_domain&gt;.*)"
 | stats count by email_domain</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
@@ -191,9 +191,9 @@
       <chart>
         <title>Client Device Type (User Agent)</title>
         <search>
-          <query>`webex_index` `attendee_sourcetypes`
-| stats count by email clientAgent
-| stats count by clientAgent</query>
+          <query>`webex_meeting` sourcetype="cisco:webex:meeting:qualities"
+| stats count by webexUserEmail clientType
+| stats count by clientType</query>
           <earliest>$time_tok.earliest$</earliest>
           <latest>$time_tok.latest$</latest>
         </search>

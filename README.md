@@ -1,6 +1,6 @@
-# Cisco WebEx Meetings App for Splunk
+# Cisco Webex App for Splunk
 
-The **Cisco WebEx Meetings App for Splunk** app provides the interface for searches, reports, and dashboards for your Cisco WebEx Meetings video conferencing environment. It works in concert with [WebEx Meetings Add-on for Splunk](https://splunkbase.splunk.com/app/4991/), which connects to your Cisco WebEx Meetings data, to enable you to monitor, manage, and troubleshoot your WebEx Meetings service from a single application.
+The **Cisco Webex App for Splunk** provides the interface for searches, reports, and dashboards for your Cisco Webex environment. It works in concert with [Cisco Webex Add-on for Splunk](https://splunkbase.splunk.com/app/8365), which connects to your Cisco Webex data, to enable you to monitor, manage, and troubleshoot your Webex service from a single application.
 
 ## Release Notes
 
@@ -9,25 +9,39 @@ The **Cisco WebEx Meetings App for Splunk** app provides the interface for searc
 - Added Navigation & License
 - Modular Dashboards for various persona
 
+### Version 2.0.0 - April 29, 2026
+- Made it compatible with the Cisco Webex Add-on for Splunk
+- Added dashboards for Webex Calling
+- Added dashboardes for Webex Contact Center
+
+
 ## FAQ
 
-- Default Index name: `webex`
+- Default Indexes name:
+  - `webex_meeting`: index=wx
+  - `webex_calling`: index=wxc
+  - `webex_contact_center`: index=wxcc
 
-- Technology Add-on to retrieve Webex meetings data: [WebEx Meetings Add-on for Splunk](https://splunkbase.splunk.com/app/4991/)
+- Technology Add-on to retrieve Webex data: [Cisco Webex Add-on for Splunk](https://splunkbase.splunk.com/app/8365)
 
 - My dashboard is empty.
-    - Verify whether the TA (*WebEx Meetings Add-on for Splunk*) is installed and configured properly to get data.
-    - Check the index name! Default value is **webex** in macro named **webex_dev** .
+    - Verify whether the TA (*Cisco Webex Add-on for Splunk*) is installed and configured properly to get data.
+    - Check the indexes name! Default values in macro are
+       - `wx` for Webex Meeting
+       - `wxc` for Webex Calling
+       - `wxcc` for Webex Contact Center
 
 
-- Change the macro named **webex_index** to pin accurate index, by default App uses **webex** as index name.
+- Change the macros named **webex_xxx** to pin accurate indexes.
      - Select **Settings** > **Advanced Search** > **Search macros**
-     - Filter: **webex_index**
-     - Click on macro named **webex_index** from result
-     - Change the definition to appropriate index. For example, if index name comprising webex data is **webex_dev**, your **Definition** box should be **index=webex_dev**
+     - Filter: `webex`
+     - Click on macro named `webex_xxx` from results
+     - Change the definition to appropriate indexes. For example, if index name comprising **webex meeting** data is **webex_meeting**, your **Definition** box should be  `index=webex_meeting`
 
 ## Contributors
 
+- Khalid Ali
+- Isaac Fonseca Monge
 - Yuan Ling
 - Philippe Tang
 - Sandeep Vasani

@@ -1,0 +1,1171 @@
+<dashboard version="2" theme="dark">
+    <label>Webex Calling - IT Ops &amp; Security</label>
+    <description>Operational and security dashboard for Cisco Webex Calling CDR data. Covers call volume KPIs, quality, user activity, location breakdown, duration patterns, and anomaly detection.</description>
+    <definition><![CDATA[
+{
+	"visualizations": {
+		"viz_kpi_total": {
+			"type": "splunk.singlevalue",
+			"dataSources": {
+				"primary": "ds_kpi_total"
+			},
+			"title": "Total CDR Events",
+			"options": {
+				"majorColor": "#ffffff",
+				"backgroundColor": "#1e3a5f",
+				"trendColor": "#7cb5ec",
+				"sparklineDisplay": "off",
+				"showTrendIndicator": false,
+				"unitPosition": "after"
+			}
+		},
+		"viz_kpi_originating": {
+			"type": "splunk.singlevalue",
+			"dataSources": {
+				"primary": "ds_kpi_originating"
+			},
+			"title": "Originating Calls",
+			"options": {
+				"majorColor": "#ffffff",
+				"backgroundColor": "#0f4d6e",
+				"sparklineDisplay": "off",
+				"showTrendIndicator": false
+			}
+		},
+		"viz_kpi_answer_rate": {
+			"type": "splunk.singlevalue",
+			"dataSources": {
+				"primary": "ds_kpi_answer_rate"
+			},
+			"title": "Answer Rate",
+			"options": {
+				"unit": "%",
+				"unitPosition": "after",
+				"majorColor": "> majorValue | rangeValue(answerRateColors)",
+				"backgroundColor": "> majorValue | rangeValue(answerRateBg)",
+				"sparklineDisplay": "off",
+				"showTrendIndicator": false
+			},
+			"context": {
+				"answerRateColors": {
+					"type": "rangeValue",
+					"ranges": [
+						{
+							"from": 0,
+							"to": 80,
+							"value": "#ffffff"
+						},
+						{
+							"from": 80,
+							"to": 90,
+							"value": "#ffffff"
+						},
+						{
+							"from": 90,
+							"to": 100,
+							"value": "#ffffff"
+						}
+					]
+				},
+				"answerRateBg": {
+					"type": "rangeValue",
+					"ranges": [
+						{
+							"from": 0,
+							"to": 80,
+							"value": "#c23b22"
+						},
+						{
+							"from": 80,
+							"to": 90,
+							"value": "#b07c2e"
+						},
+						{
+							"from": 90,
+							"to": 100,
+							"value": "#1a6b45"
+						}
+					]
+				}
+			}
+		},
+		"viz_kpi_success_rate": {
+			"type": "splunk.singlevalue",
+			"dataSources": {
+				"primary": "ds_kpi_success_rate"
+			},
+			"title": "Call Success Rate",
+			"options": {
+				"unit": "%",
+				"unitPosition": "after",
+				"majorColor": "> majorValue | rangeValue(successColors)",
+				"backgroundColor": "> majorValue | rangeValue(successBg)",
+				"sparklineDisplay": "off",
+				"showTrendIndicator": false
+			},
+			"context": {
+				"successColors": {
+					"type": "rangeValue",
+					"ranges": [
+						{
+							"from": 0,
+							"to": 85,
+							"value": "#ffffff"
+						},
+						{
+							"from": 85,
+							"to": 95,
+							"value": "#ffffff"
+						},
+						{
+							"from": 95,
+							"to": 100,
+							"value": "#ffffff"
+						}
+					]
+				},
+				"successBg": {
+					"type": "rangeValue",
+					"ranges": [
+						{
+							"from": 0,
+							"to": 85,
+							"value": "#c23b22"
+						},
+						{
+							"from": 85,
+							"to": 95,
+							"value": "#b07c2e"
+						},
+						{
+							"from": 95,
+							"to": 100,
+							"value": "#1a6b45"
+						}
+					]
+				}
+			}
+		},
+		"viz_kpi_avg_dur": {
+			"type": "splunk.singlevalue",
+			"dataSources": {
+				"primary": "ds_kpi_avg_dur"
+			},
+			"title": "Avg Call Duration",
+			"options": {
+				"unit": "s",
+				"unitPosition": "after",
+				"majorColor": "#ffffff",
+				"backgroundColor": "#2d4a6e",
+				"sparklineDisplay": "off",
+				"showTrendIndicator": false
+			}
+		},
+		"viz_kpi_refused": {
+			"type": "splunk.singlevalue",
+			"dataSources": {
+				"primary": "ds_kpi_refused"
+			},
+			"title": "Refused / Failed Calls",
+			"options": {
+				"majorColor": "> majorValue | rangeValue(refusedColors)",
+				"backgroundColor": "> majorValue | rangeValue(refusedBg)",
+				"sparklineDisplay": "off",
+				"showTrendIndicator": false
+			},
+			"context": {
+				"refusedColors": {
+					"type": "rangeValue",
+					"ranges": [
+						{
+							"from": 0,
+							"to": 1,
+							"value": "#ffffff"
+						},
+						{
+							"from": 1,
+							"to": 5,
+							"value": "#ffffff"
+						},
+						{
+							"from": 5,
+							"to": 999,
+							"value": "#ffffff"
+						}
+					]
+				},
+				"refusedBg": {
+					"type": "rangeValue",
+					"ranges": [
+						{
+							"from": 0,
+							"to": 1,
+							"value": "#1a6b45"
+						},
+						{
+							"from": 1,
+							"to": 5,
+							"value": "#b07c2e"
+						},
+						{
+							"from": 5,
+							"to": 999,
+							"value": "#c23b22"
+						}
+					]
+				}
+			}
+		},
+		"viz_kpi_offhours": {
+			"type": "splunk.singlevalue",
+			"dataSources": {
+				"primary": "ds_kpi_offhours"
+			},
+			"title": "Off-Hours Calls",
+			"options": {
+				"majorColor": "> majorValue | rangeValue(offColors)",
+				"backgroundColor": "> majorValue | rangeValue(offBg)",
+				"sparklineDisplay": "off",
+				"showTrendIndicator": false
+			},
+			"context": {
+				"offColors": {
+					"type": "rangeValue",
+					"ranges": [
+						{
+							"from": 0,
+							"to": 1,
+							"value": "#ffffff"
+						},
+						{
+							"from": 1,
+							"to": 10,
+							"value": "#ffffff"
+						},
+						{
+							"from": 10,
+							"to": 999,
+							"value": "#ffffff"
+						}
+					]
+				},
+				"offBg": {
+					"type": "rangeValue",
+					"ranges": [
+						{
+							"from": 0,
+							"to": 1,
+							"value": "#1a6b45"
+						},
+						{
+							"from": 1,
+							"to": 10,
+							"value": "#b07c2e"
+						},
+						{
+							"from": 10,
+							"to": 999,
+							"value": "#c23b22"
+						}
+					]
+				}
+			}
+		},
+		"viz_trend": {
+			"type": "splunk.column",
+			"dataSources": {
+				"primary": "ds_trend"
+			},
+			"title": "Daily Call Volume by Direction",
+			"options": {
+				"stackMode": "stacked",
+				"legendDisplay": "bottom",
+				"xAxisTitleText": "Date",
+				"yAxisTitleText": "Call Count",
+				"backgroundColor": "transparent"
+			}
+		},
+		"viz_direction_pie": {
+			"type": "splunk.pie",
+			"dataSources": {
+				"primary": "ds_direction"
+			},
+			"title": "Originating vs Terminating",
+			"options": {
+				"legendDisplay": "bottom",
+				"backgroundColor": "transparent"
+			}
+		},
+		"viz_call_type": {
+			"type": "splunk.bar",
+			"dataSources": {
+				"primary": "ds_call_type"
+			},
+			"title": "Call Type Distribution",
+			"options": {
+				"orientation": "horizontal",
+				"legendDisplay": "off",
+				"yAxisTitleText": "Call Type",
+				"xAxisTitleText": "Count",
+				"backgroundColor": "transparent"
+			}
+		},
+		"viz_client_type": {
+			"type": "splunk.pie",
+			"dataSources": {
+				"primary": "ds_client_type"
+			},
+			"title": "Client Type Distribution",
+			"options": {
+				"legendDisplay": "right",
+				"backgroundColor": "transparent"
+			}
+		},
+		"viz_outcome": {
+			"type": "splunk.bar",
+			"dataSources": {
+				"primary": "ds_outcome"
+			},
+			"title": "Call Outcome by Reason",
+			"options": {
+				"orientation": "horizontal",
+				"stackMode": "stacked",
+				"legendDisplay": "bottom",
+				"yAxisTitleText": "Outcome Reason",
+				"xAxisTitleText": "Count",
+				"backgroundColor": "transparent"
+			}
+		},
+		"viz_top_users": {
+			"type": "splunk.bar",
+			"dataSources": {
+				"primary": "ds_top_users"
+			},
+			"title": "Top 10 Users — Originating Calls",
+			"options": {
+				"orientation": "horizontal",
+				"legendDisplay": "off",
+				"yAxisTitleText": "User",
+				"xAxisTitleText": "Calls",
+				"backgroundColor": "transparent"
+			}
+		},
+		"viz_user_type": {
+			"type": "splunk.pie",
+			"dataSources": {
+				"primary": "ds_user_type"
+			},
+			"title": "User Type Breakdown",
+			"options": {
+				"legendDisplay": "right",
+				"backgroundColor": "transparent"
+			}
+		},
+		"viz_location": {
+			"type": "splunk.bar",
+			"dataSources": {
+				"primary": "ds_location"
+			},
+			"title": "Calls by Location",
+			"options": {
+				"legendDisplay": "off",
+				"xAxisTitleText": "Location",
+				"yAxisTitleText": "Calls",
+				"backgroundColor": "transparent"
+			}
+		},
+		"viz_duration": {
+			"type": "splunk.column",
+			"dataSources": {
+				"primary": "ds_duration"
+			},
+			"title": "Call Duration Buckets (Originating)",
+			"options": {
+				"legendDisplay": "off",
+				"xAxisTitleText": "Duration",
+				"yAxisTitleText": "Calls",
+				"backgroundColor": "transparent"
+			}
+		},
+		"viz_hourly": {
+			"type": "splunk.area",
+			"dataSources": {
+				"primary": "ds_hourly"
+			},
+			"title": "Hourly Call Activity (UTC)",
+			"options": {
+				"legendDisplay": "off",
+				"xAxisTitleText": "Hour (UTC)",
+				"yAxisTitleText": "Calls",
+				"backgroundColor": "transparent"
+			}
+		},
+		"viz_failed_table": {
+			"type": "splunk.table",
+			"dataSources": {
+				"primary": "ds_failed"
+			},
+			"title": "Failed / Refused Calls — Detail",
+			"options": {
+				"count": 10,
+				"columnFormat": {
+					"Call outcome": {
+						"data": "> table | seriesByName('Call outcome')",
+						"render": "sparkline"
+					}
+				}
+			}
+		},
+		"viz_offhours_table": {
+			"type": "splunk.table",
+			"dataSources": {
+				"primary": "ds_offhours"
+			},
+			"title": "Off-Hours Calls (Outside 08:00–18:00 UTC)",
+			"options": {
+				"count": 10
+			}
+		},
+		"viz_redirect": {
+			"type": "splunk.pie",
+			"dataSources": {
+				"primary": "ds_redirect"
+			},
+			"title": "Redirect Reason Breakdown",
+			"options": {
+				"legendDisplay": "right",
+				"backgroundColor": "transparent"
+			}
+		},
+		"viz_releasing": {
+			"type": "splunk.pie",
+			"dataSources": {
+				"primary": "ds_releasing"
+			},
+			"title": "Releasing Party",
+			"options": {
+				"legendDisplay": "right",
+				"backgroundColor": "transparent"
+			}
+		},
+		"viz_unanswered": {
+			"type": "splunk.table",
+			"dataSources": {
+				"primary": "ds_unanswered"
+			},
+			"title": "Unanswered Calls by User",
+			"options": {
+				"count": 10
+			}
+		},
+		"viz_raw_log": {
+			"type": "splunk.table",
+			"dataSources": {
+				"primary": "ds_raw_log"
+			},
+			"title": "Recent CDR Events",
+			"options": {
+				"count": 20
+			}
+		},
+		"viz_label_header": {
+			"type": "splunk.markdown",
+			"options": {
+				"markdown": "# Webex Calling — IT Ops & Security\n**`webex_calling`** &nbsp;|&nbsp; `cisco:webex:call:detailed_history` &nbsp;|&nbsp; Splunk 9.2.2"
+			}
+		},
+		"viz_label_kpis": {
+			"type": "splunk.markdown",
+			"options": {
+				"markdown": "## Key Performance Indicators"
+			}
+		},
+		"viz_label_volume": {
+			"type": "splunk.markdown",
+			"options": {
+				"markdown": "## Call Volume & Direction"
+			}
+		},
+		"viz_label_characteristics": {
+			"type": "splunk.markdown",
+			"options": {
+				"markdown": "## Call Characteristics"
+			}
+		},
+		"viz_label_users": {
+			"type": "splunk.markdown",
+			"options": {
+				"markdown": "## User & Location Activity"
+			}
+		},
+		"viz_label_patterns": {
+			"type": "splunk.markdown",
+			"options": {
+				"markdown": "## Duration & Time Patterns"
+			}
+		},
+		"viz_label_security": {
+			"type": "splunk.markdown",
+			"options": {
+				"markdown": "## Security & Anomaly Review"
+			}
+		},
+		"viz_label_flow": {
+			"type": "splunk.markdown",
+			"options": {
+				"markdown": "## Call Flow Analysis"
+			}
+		},
+		"viz_label_log": {
+			"type": "splunk.markdown",
+			"options": {
+				"markdown": "## Raw CDR Event Log"
+			}
+		}
+	},
+	"dataSources": {
+		"ds_kpi_total": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=$direction_tok$ Location=$location_tok$ | stats count",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_kpi_originating": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=\"ORIGINATING\" Location=$location_tok$ | stats count",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_kpi_answer_rate": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=\"ORIGINATING\" Location=$location_tok$ | stats count as total, count(eval(Answered=\"true\")) as answered | eval answer_rate=round((answered/total)*100,1) | fields answer_rate",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_kpi_success_rate": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=\"ORIGINATING\" Location=$location_tok$ | stats count as total, count(eval('Call outcome'=\"Success\")) as success | eval rate=round((success/total)*100,1) | fields rate",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_kpi_avg_dur": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=\"ORIGINATING\" Location=$location_tok$ | stats avg(Duration) as avg_dur | eval avg_dur=round(avg_dur,0) | fields avg_dur",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_kpi_refused": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=\"ORIGINATING\" Location=$location_tok$ \"Call outcome\"=\"Refusal\" | stats count",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_kpi_offhours": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=\"ORIGINATING\" Location=$location_tok$ | eval hour=strftime(_time,\"%H\") | where hour<\"08\" OR hour>=\"18\" | stats count",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_trend": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=$direction_tok$ Location=$location_tok$ | timechart span=1d count by Direction",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_direction": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Location=$location_tok$ | stats count by Direction",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_call_type": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=$direction_tok$ Location=$location_tok$ | stats count by \"Call type\" | sort -count",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_client_type": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=$direction_tok$ Location=$location_tok$ | stats count by \"Client type\" | sort -count",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_outcome": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=$direction_tok$ Location=$location_tok$ | stats count by \"Call outcome\", \"Call outcome reason\" | sort -count",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_top_users": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=\"ORIGINATING\" Location=$location_tok$ User!=\"\" | stats count by User | sort -count | head 10",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_user_type": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=$direction_tok$ Location=$location_tok$ | stats count by \"User type\" | sort -count",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_location": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=$direction_tok$ | stats count by Location | sort -count",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_duration": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=\"ORIGINATING\" Location=$location_tok$ | eval dur_bucket=case(Duration<=30,\"0-30s\",Duration<=60,\"31-60s\",Duration<=180,\"1-3min\",Duration<=600,\"3-10min\",true(),\"10min+\") | eval sort_key=case(dur_bucket=\"0-30s\",1,dur_bucket=\"31-60s\",2,dur_bucket=\"1-3min\",3,dur_bucket=\"3-10min\",4,true(),5) | stats count by dur_bucket, sort_key | sort sort_key | fields dur_bucket, count",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_hourly": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=$direction_tok$ Location=$location_tok$ | eval hour=strftime(_time,\"%H:00\") | stats count by hour | sort hour",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_failed": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=\"ORIGINATING\" Location=$location_tok$ \"Call outcome\"=\"Refusal\" | table _time, User, \"User type\", \"Calling number\", \"Called number\", \"Call outcome\", \"Call outcome reason\", Location, \"Client type\" | sort -_time",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_offhours": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=\"ORIGINATING\" Location=$location_tok$ | eval hour=strftime(_time,\"%H\") | where hour<\"08\" OR hour>=\"18\" | table _time, User, \"User type\", \"Calling number\", \"Called number\", \"Call type\", Location, \"Call outcome\", Duration | sort -_time",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_redirect": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=$direction_tok$ Location=$location_tok$ \"Redirect reason\"!=\"\" | stats count by \"Redirect reason\" | sort -count",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_releasing": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=$direction_tok$ Location=$location_tok$ | stats count by \"Releasing party\" | sort -count",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_unanswered": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=\"ORIGINATING\" Location=$location_tok$ Answered=\"false\" | stats count as unanswered_calls by User, \"User type\", Location | sort -unanswered_calls",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		},
+		"ds_raw_log": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_calling` sourcetype=\"cisco:webex:call:detailed_history\" Direction=$direction_tok$ Location=$location_tok$ | table _time, User, \"User type\", Direction, \"Calling number\", \"Called number\", \"Call type\", \"Client type\", Location, Duration, Answered, \"Call outcome\", \"Call outcome reason\", \"Redirect reason\", \"Correlation ID\" | sort -_time | head 200",
+				"queryParameters": {
+					"earliest": "$time_tok.earliest$",
+					"latest": "$time_tok.latest$"
+				}
+			}
+		}
+	},
+	"inputs": {
+		"input_time": {
+			"type": "input.timerange",
+			"options": {
+				"token": "time_tok",
+				"defaultValue": "-7d@d,now"
+			},
+			"title": "Time Range"
+		},
+		"input_direction": {
+			"type": "input.dropdown",
+			"options": {
+				"token": "direction_tok",
+				"defaultValue": "*",
+				"items": [
+					{
+						"label": "All",
+						"value": "*"
+					},
+					{
+						"label": "Originating",
+						"value": "ORIGINATING"
+					},
+					{
+						"label": "Terminating",
+						"value": "TERMINATING"
+					}
+				]
+			},
+			"title": "Direction"
+		},
+		"input_location": {
+			"type": "input.dropdown",
+			"options": {
+				"token": "location_tok",
+				"defaultValue": "*",
+				"items": [
+					{
+						"label": "All Locations",
+						"value": "*"
+					},
+					{
+						"label": "AMER-CP",
+						"value": "AMER-CP"
+					},
+					{
+						"label": "AMER-RTP",
+						"value": "AMER-RTP"
+					}
+				]
+			},
+			"title": "Location"
+		}
+	},
+	"layout": {
+		"type": "absolute",
+		"options": {
+			"width": 1440,
+			"height": 3200,
+			"backgroundColor": "#0b1526",
+			"backgroundImage": {}
+		},
+		"structure": [
+			{
+				"item": "viz_label_header",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 10,
+					"w": 1400,
+					"h": 55
+				}
+			},
+			{
+				"item": "viz_label_kpis",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 75,
+					"w": 1400,
+					"h": 35
+				}
+			},
+			{
+				"item": "viz_kpi_total",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 115,
+					"w": 190,
+					"h": 100
+				}
+			},
+			{
+				"item": "viz_kpi_originating",
+				"type": "block",
+				"position": {
+					"x": 220,
+					"y": 115,
+					"w": 190,
+					"h": 100
+				}
+			},
+			{
+				"item": "viz_kpi_answer_rate",
+				"type": "block",
+				"position": {
+					"x": 420,
+					"y": 115,
+					"w": 190,
+					"h": 100
+				}
+			},
+			{
+				"item": "viz_kpi_success_rate",
+				"type": "block",
+				"position": {
+					"x": 620,
+					"y": 115,
+					"w": 190,
+					"h": 100
+				}
+			},
+			{
+				"item": "viz_kpi_avg_dur",
+				"type": "block",
+				"position": {
+					"x": 820,
+					"y": 115,
+					"w": 190,
+					"h": 100
+				}
+			},
+			{
+				"item": "viz_kpi_refused",
+				"type": "block",
+				"position": {
+					"x": 1020,
+					"y": 115,
+					"w": 190,
+					"h": 100
+				}
+			},
+			{
+				"item": "viz_kpi_offhours",
+				"type": "block",
+				"position": {
+					"x": 1220,
+					"y": 115,
+					"w": 200,
+					"h": 100
+				}
+			},
+			{
+				"item": "viz_label_volume",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 230,
+					"w": 1400,
+					"h": 35
+				}
+			},
+			{
+				"item": "viz_trend",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 270,
+					"w": 1000,
+					"h": 280
+				}
+			},
+			{
+				"item": "viz_direction_pie",
+				"type": "block",
+				"position": {
+					"x": 1030,
+					"y": 270,
+					"w": 390,
+					"h": 280
+				}
+			},
+			{
+				"item": "viz_label_characteristics",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 565,
+					"w": 1400,
+					"h": 35
+				}
+			},
+			{
+				"item": "viz_call_type",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 605,
+					"w": 450,
+					"h": 250
+				}
+			},
+			{
+				"item": "viz_client_type",
+				"type": "block",
+				"position": {
+					"x": 480,
+					"y": 605,
+					"w": 450,
+					"h": 250
+				}
+			},
+			{
+				"item": "viz_outcome",
+				"type": "block",
+				"position": {
+					"x": 940,
+					"y": 605,
+					"w": 480,
+					"h": 250
+				}
+			},
+			{
+				"item": "viz_label_users",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 870,
+					"w": 1400,
+					"h": 35
+				}
+			},
+			{
+				"item": "viz_top_users",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 910,
+					"w": 640,
+					"h": 300
+				}
+			},
+			{
+				"item": "viz_user_type",
+				"type": "block",
+				"position": {
+					"x": 670,
+					"y": 910,
+					"w": 380,
+					"h": 300
+				}
+			},
+			{
+				"item": "viz_location",
+				"type": "block",
+				"position": {
+					"x": 1060,
+					"y": 910,
+					"w": 360,
+					"h": 300
+				}
+			},
+			{
+				"item": "viz_label_patterns",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 1225,
+					"w": 1400,
+					"h": 35
+				}
+			},
+			{
+				"item": "viz_duration",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 1265,
+					"w": 700,
+					"h": 260
+				}
+			},
+			{
+				"item": "viz_hourly",
+				"type": "block",
+				"position": {
+					"x": 730,
+					"y": 1265,
+					"w": 690,
+					"h": 260
+				}
+			},
+			{
+				"item": "viz_label_security",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 1540,
+					"w": 1400,
+					"h": 35
+				}
+			},
+			{
+				"item": "viz_failed_table",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 1580,
+					"w": 700,
+					"h": 280
+				}
+			},
+			{
+				"item": "viz_offhours_table",
+				"type": "block",
+				"position": {
+					"x": 730,
+					"y": 1580,
+					"w": 690,
+					"h": 280
+				}
+			},
+			{
+				"item": "viz_label_flow",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 1875,
+					"w": 1400,
+					"h": 35
+				}
+			},
+			{
+				"item": "viz_unanswered",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 1915,
+					"w": 450,
+					"h": 260
+				}
+			},
+			{
+				"item": "viz_redirect",
+				"type": "block",
+				"position": {
+					"x": 480,
+					"y": 1915,
+					"w": 450,
+					"h": 260
+				}
+			},
+			{
+				"item": "viz_releasing",
+				"type": "block",
+				"position": {
+					"x": 940,
+					"y": 1915,
+					"w": 480,
+					"h": 260
+				}
+			},
+			{
+				"item": "viz_label_log",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 2190,
+					"w": 1400,
+					"h": 35
+				}
+			},
+			{
+				"item": "viz_raw_log",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 2230,
+					"w": 1400,
+					"h": 500
+				}
+			}
+		],
+		"globalInputs": [
+			"input_time",
+			"input_direction",
+			"input_location"
+		]
+	},
+	"title": "Webex Calling - IT Ops & Security",
+	"description": "Operational and security dashboard for Cisco Webex Calling CDR data. Covers call volume KPIs, quality, user activity, location breakdown, duration patterns, and anomaly detection.",
+	"defaults": {
+		"dataSources": {
+			"ds.search": {
+				"options": {
+					"queryParameters": {
+						"earliest": "-7d@d",
+						"latest": "now"
+					}
+				}
+			}
+		}
+	}
+}
+    ]]></definition>
+    <meta type="hiddenElements"><![CDATA[
+{
+	"hideEdit": false,
+	"hideOpenInSearch": false,
+	"hideExport": false
+}
+    ]]></meta>
+</dashboard>
