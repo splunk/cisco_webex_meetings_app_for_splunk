@@ -12,7 +12,7 @@ The **Cisco Webex App for Splunk** provides the interface for searches, reports,
 ### Version 2.0.0 - April 29, 2026
 - Made it compatible with the Cisco Webex Add-on for Splunk
 - Added dashboards for Webex Calling
-- Added dashboardes for Webex Contact Center
+- Added dashboards for Webex Contact Center
 
 
 ## FAQ
