@@ -25,7 +25,7 @@
       </default>
     </input>
     <input type="text" token="username" searchWhenChanged="true">
-      <label>UserName</label>
+      <label>Username</label>
       <default>*</default>
     </input>
     <input id="input_ip" type="text" token="ip_cidr" searchWhenChanged="true">
