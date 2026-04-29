@@ -1,12 +1,16 @@
 <nav search_view="search">
-  <view name="webex_overview" default='true' />
   <collection label="Meetings">
+    <view name="webex_overview" default='true'/>
     <view name="webex_meetings" />
     <view name="webex_activities" />
-  </collection>
-  <collection label="Security">
     <view name="webex_sec_overview" />
     <view name="webex_sec_meetings_investigation" />
+  </collection>
+  <collection label="Calling">
+    <view name="wxc_home" />
+  </collection>
+  <collection label="Contact Center">
+    <view name="webex_contact_center_-_home" />
   </collection>
   <view name="webex_data_quality" />
   <collection label="Others">

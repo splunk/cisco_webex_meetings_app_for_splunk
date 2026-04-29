@@ -1,16 +1,15 @@
 <form version="1.1" theme="dark" stylesheet="style.css">
-  <label>WebEx Meetings Investigation</label>
+  <label>Webex Meetings Investigation</label>
   <description>Disclaimer: Only meetings that ended prior to 12AM two days ago are shown.</description>
   <search>
-    <query>`webex_index` `attendee_sourcetypes`
-| where cidrmatch("$ip$",ipAddress)
-| search name="*$username$*" OR email="*$username$*"
-| eval uniqueParticipantIdentifier = coalesce(email, coalesce(name, ipAddress))
-| eval confName=coalesce(confName, "Default Conference Name")
-| stats min(_time) as _time list(name) as Username, list(email) as Email, list(participantType) as "Participant Type", list(clientAgent) as "Client Agent", list(ipAddress) as IP, dc(uniqueParticipantIdentifier) as Participants by confName confID
+    <query>`webex_meeting` sourcetype="cisco:webex:meeting:qualities"
+| join left=a right=b where a.meetingInstanceId=b.meetingId [| search `webex_meeting` sourcetype="cisco:webex:meeting:usage:reports"]
+| where cidrmatch("$ip_cidr$",'a.maskedPublicIP')
+| search a.webexUserName="*$username$*"
+| stats min(_time) as _time list(a.webexUserName) as Username, list(a.webexUserEmail) as Email, list(a.hardwareType) as "Hardware Type", list(a.clientType) as "Client Type", list(a.networkType) as "Network Type", list(a.maskedPublicIP) as IP, dc(a.participantId) as Participants by b.meetingTitle b.meetingId
+| rename b.meetingTitle as meetingName, b.meetingId as meetingId
 | sort - _time
-| fields _time confName confID Participants Username Email "Participant Type" "Client Agent" IP
-| rename confName as "Meeting Name"</query>
+| fields _time meetingName meetingId Participants Username Email "Hardware Type" "Client Type" "Network Type" IP</query>
     <earliest>$time_tok.earliest$</earliest>
     <latest>$time_tok.latest$</latest>
     <done>
@@ -29,7 +28,7 @@
       <label>Username</label>
       <default>*</default>
     </input>
-    <input id="input_ip" type="text" token="ip" searchWhenChanged="true">
+    <input id="input_ip" type="text" token="ip_cidr" searchWhenChanged="true">
       <label>IP Address (CIDR Notation - eg: 10.0.0.1/32)</label>
       <default>0.0.0.0/0</default>
     </input>
@@ -66,7 +65,7 @@
         <title>Unique Meetings</title>
         <search>
           <query>| loadjob $meetings_job_sid$
-| stats dc(confID)</query>
+| stats dc(meetingId)</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
         </search>
@@ -79,7 +78,7 @@
         <title>Unique Client Agent</title>
         <search>
           <query>| loadjob $meetings_job_sid$
-| stats dc("Client Agent")</query>
+| stats dc("Client Type")</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
         </search>
@@ -147,7 +146,7 @@
   <row>
     <panel>
       <table>
-        <title>WebEx Meetings Details</title>
+        <title>Webex Meetings Details</title>
         <search>
           <query>| loadjob $meetings_job_sid$</query>
           <earliest>$earliest$</earliest>
@@ -161,7 +160,7 @@
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
         <drilldown>
-          <link target="_blank">search?q=%60webex_index%60%20sourcetype=%22cisco:webex:meetings:history:meetingattendeehistory%22%20confID=%22$row.confID$%22&amp;earliest=$time_tok.earliest$&amp;latest=$time_tok.latest$</link>
+          <link target="_blank">search?q=%60webex_meeting%60%20sourcetype=%22cisco:webex:meeting:attendee:reports%22%20meetingId=%22$row.meetingId$%22&amp;earliest=$time_tok.earliest$&amp;latest=$time_tok.latest$</link>
         </drilldown>
       </table>
       <html>

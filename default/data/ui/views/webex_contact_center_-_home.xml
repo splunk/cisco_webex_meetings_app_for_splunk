@@ -1,0 +1,789 @@
+
+<dashboard version="2" theme="dark">
+    <label>WxCC Contact Center — Supervisor Dashboard</label>
+    <description>Key metrics for contact center supervisors and analysts. Source: cisco:webex:contact:center:*</description>
+    <definition><![CDATA[
+{
+	"title": "WxCC Contact Center — Supervisor Dashboard",
+	"description": "Key metrics for contact center supervisors and analysts. Source: cisco:webex:contact:center:*",
+	"defaults": {
+		"dataSources": {
+			"ds.search": {
+				"options": {
+					"queryParameters": {
+						"earliest": "$time_tok.earliest$",
+						"latest": "$time_tok.latest$"
+					}
+				}
+			}
+		}
+	},
+	"inputs": {
+		"input_time": {
+			"type": "input.timerange",
+			"title": "Time Range",
+			"options": {
+				"token": "time_tok",
+				"defaultValue": "-30d@d,now"
+			}
+		},
+		"input_channel": {
+			"type": "input.dropdown",
+			"title": "Channel",
+			"options": {
+				"token": "channel_tok",
+				"defaultValue": "*",
+				"items": []
+			},
+			"context": {},
+			"dataSources": {
+				"primary": "ds_WjCCB20Z"
+			}
+		}
+	},
+	"dataSources": {
+		"ds_total_contacts": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CSR\" | search channelType=\"$channel_tok$\" | stats count as \"Total Contacts\""
+			}
+		},
+		"ds_handled": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CSR\" | search channelType=\"$channel_tok$\" terminationType=\"normal\" | stats count as Handled"
+			}
+		},
+		"ds_abandon_rate": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CSR\" | search channelType=\"$channel_tok$\" | stats count as total, count(eval(terminationType=\"abandoned\")) as abandoned | eval \"Abandon Rate %\"=round(abandoned/total*100,1) | table \"Abandon Rate %\""
+			}
+		},
+		"ds_service_level": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CSR\" | search channelType=\"$channel_tok$\" | stats count as total, count(eval(isWithInServiceLevel=\"true\")) as within_sl | eval \"Service Level %\"=round(within_sl/total*100,1) | table \"Service Level %\""
+			}
+		},
+		"ds_aht": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CSR\" | search channelType=\"$channel_tok$\" | stats avg(totalDuration) as avg_dur | eval \"Avg Handle (s)\"=round(avg_dur/1000,0) | table \"Avg Handle (s)\""
+			}
+		},
+		"ds_avg_queue": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CSR\" | search channelType=\"$channel_tok$\" | stats avg(queueDuration) as avg_q | eval \"Avg Queue (s)\"=round(avg_q/1000,0) | table \"Avg Queue (s)\""
+			}
+		},
+		"ds_rona_total": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CAR\" | search \"activity.node.terminationReason\"=RONA_TIMER_EXPIRED | stats count as \"RONA Events\""
+			}
+		},
+		"ds_active_agents": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:ASR\" | stats dc(agentId) as \"Active Agents\""
+			}
+		},
+		"ds_volume_trend": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CSR\" | search channelType=\"$channel_tok$\" | timechart span=1d count as Contacts"
+			}
+		},
+		"ds_channel_mix": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CSR\" | stats count by channelType | sort -count | rename channelType as Channel, count as Count"
+			}
+		},
+		"ds_termination_types": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CSR\" | search channelType=\"$channel_tok$\" | stats count by terminationType | sort -count | rename terminationType as \"Termination Type\", count as Count"
+			}
+		},
+		"ds_avg_times": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CSR\" | search channelType=\"$channel_tok$\" | stats avg(totalDuration) as \"Handle Time\", avg(queueDuration) as \"Queue Wait\", avg(wrapupDuration) as \"Wrapup\", avg(ringingDuration) as \"Ringing\", avg(holdDuration) as \"Hold\" | foreach \"Handle Time\" \"Queue Wait\" \"Wrapup\" \"Ringing\" \"Hold\" [eval \"<<FIELD>>\"=round('<<FIELD>>'/1000,0)] | transpose 0 header_field=none | rename column as Metric, \"row 1\" as \"Avg Seconds\""
+			}
+		},
+		"ds_daily_outcomes": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CSR\" | search channelType=\"$channel_tok$\" | timechart span=1d count(eval(terminationType=\"normal\")) as \"Agent Handled\", count(eval(terminationType=\"self_service\")) as \"Self Service\", count(eval(terminationType=\"abandoned\")) as Abandoned"
+			}
+		},
+		"ds_rona_by_agent": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CAR\" | search \"activity.node.terminationReason\"=RONA_TIMER_EXPIRED | stats count as \"RONA Count\" by \"activity.node.agentName\" | sort -\"RONA Count\" | rename \"activity.node.agentName\" as \"Agent Name\""
+			}
+		},
+		"ds_queue_abandonment": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CSR\" | search terminationType=\"abandoned\" | where isnotnull('lastQueue.name') AND 'lastQueue.name'!=\"null\" | stats count as Abandoned by \"lastQueue.name\" | sort -Abandoned | head 10 | rename \"lastQueue.name\" as Queue"
+			}
+		},
+		"ds_abandon_rate_by_queue": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CSR\" | where isnotnull('lastQueue.name') AND 'lastQueue.name'!=\"null\" | stats count as Total, count(eval(terminationType=\"abandoned\")) as Abandoned by \"lastQueue.name\" | eval \"Abandon Rate %\"=round(Abandoned/Total*100,1) | sort -Abandoned | head 10 | rename \"lastQueue.name\" as Queue | table Queue, Total, Abandoned, \"Abandon Rate %\""
+			}
+		},
+		"ds_top_agents": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CSR\" | search terminationType=\"normal\" | where isnotnull('lastAgent.name') AND 'lastAgent.name'!=\"null\" | stats count as Handled by \"lastAgent.name\" | sort -Handled | head 10 | rename \"lastAgent.name\" as Agent"
+			}
+		},
+		"ds_agent_states": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:AAR\" | rex field=_raw max_match=50 \"\\\"state\\\":\\\\s*\\\"(?P<agent_state>[^\\\"]+)\\\"\" | mvexpand agent_state | search agent_state IN (\"idle\",\"available\",\"ringing\",\"connected\",\"wrapup\",\"not-responding\",\"logged-out\") | stats count by agent_state | sort -count | rename agent_state as State, count as Count"
+			}
+		},
+		"ds_agent_aht": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CSR\" | search terminationType=\"normal\" | where isnotnull('lastAgent.name') AND 'lastAgent.name'!=\"null\" | stats count as Contacts, avg(totalDuration) as avg_dur by \"lastAgent.name\" | where Contacts >= 3 | eval \"Avg Handle (s)\"=round(avg_dur/1000,0) | sort -Contacts | head 10 | rename \"lastAgent.name\" as Agent | table Agent, Contacts, \"Avg Handle (s)\""
+			}
+		},
+		"ds_car_events": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CAR\" | where isnotnull('activity.node.eventName') AND 'activity.node.eventName'!=\"\" | stats count by \"activity.node.eventName\" | sort -count | head 12 | rename \"activity.node.eventName\" as Event, count as Count"
+			}
+		},
+		"ds_car_term_reasons": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CAR\" | where isnotnull('activity.node.terminationReason') AND 'activity.node.terminationReason'!=\"\" | stats count as Count by \"activity.node.terminationReason\" | sort -Count | rename \"activity.node.terminationReason\" as \"Termination Reason\""
+			}
+		},
+		"ds_WjCCB20Z": {
+			"type": "ds.search",
+			"options": {
+				"query": "`webex_contact_center` sourcetype=\"cisco:webex:contact:center:CSR\" | stats count by channelType | fields - count"
+			},
+			"name": "Search_1"
+		}
+	},
+	"visualizations": {
+		"viz_total_contacts": {
+			"type": "splunk.singlevalue",
+			"dataSources": {
+				"primary": "ds_total_contacts"
+			},
+			"title": "Total Contacts",
+			"options": {
+				"backgroundColor": "transparent",
+				"trendDisplay": "off",
+				"sparklineDisplay": "off"
+			}
+		},
+		"viz_handled": {
+			"type": "splunk.singlevalue",
+			"dataSources": {
+				"primary": "ds_handled"
+			},
+			"title": "Contacts Handled",
+			"options": {
+				"backgroundColor": "transparent",
+				"trendDisplay": "off",
+				"sparklineDisplay": "off"
+			}
+		},
+		"viz_abandon_rate": {
+			"type": "splunk.singlevalue",
+			"dataSources": {
+				"primary": "ds_abandon_rate"
+			},
+			"title": "Abandonment Rate",
+			"options": {
+				"backgroundColor": "transparent",
+				"trendDisplay": "off",
+				"sparklineDisplay": "off",
+				"unit": "%",
+				"majorColorEditorConfig": {
+					"colors": [
+						"#53A051",
+						"#F8BE34",
+						"#DC4E41"
+					],
+					"breakpoints": [
+						10,
+						20
+					]
+				}
+			}
+		},
+		"viz_service_level": {
+			"type": "splunk.singlevalue",
+			"dataSources": {
+				"primary": "ds_service_level"
+			},
+			"title": "Service Level %",
+			"options": {
+				"backgroundColor": "transparent",
+				"trendDisplay": "off",
+				"sparklineDisplay": "off",
+				"unit": "%",
+				"majorColorEditorConfig": {
+					"colors": [
+						"#DC4E41",
+						"#F8BE34",
+						"#53A051"
+					],
+					"breakpoints": [
+						60,
+						80
+					]
+				}
+			}
+		},
+		"viz_aht": {
+			"type": "splunk.singlevalue",
+			"dataSources": {
+				"primary": "ds_aht"
+			},
+			"title": "Avg Handle Time",
+			"options": {
+				"backgroundColor": "transparent",
+				"trendDisplay": "off",
+				"sparklineDisplay": "off",
+				"unit": "s"
+			}
+		},
+		"viz_avg_queue": {
+			"type": "splunk.singlevalue",
+			"dataSources": {
+				"primary": "ds_avg_queue"
+			},
+			"title": "Avg Queue Wait",
+			"options": {
+				"backgroundColor": "transparent",
+				"trendDisplay": "off",
+				"sparklineDisplay": "off",
+				"unit": "s",
+				"majorColorEditorConfig": {
+					"colors": [
+						"#53A051",
+						"#F8BE34",
+						"#DC4E41"
+					],
+					"breakpoints": [
+						60,
+						120
+					]
+				}
+			}
+		},
+		"viz_rona_total": {
+			"type": "splunk.singlevalue",
+			"dataSources": {
+				"primary": "ds_rona_total"
+			},
+			"title": "Total RONA Events",
+			"options": {
+				"backgroundColor": "transparent",
+				"trendDisplay": "off",
+				"sparklineDisplay": "off",
+				"majorColorEditorConfig": {
+					"colors": [
+						"#53A051",
+						"#F8BE34",
+						"#DC4E41"
+					],
+					"breakpoints": [
+						5,
+						15
+					]
+				}
+			}
+		},
+		"viz_active_agents": {
+			"type": "splunk.singlevalue",
+			"dataSources": {
+				"primary": "ds_active_agents"
+			},
+			"title": "Active Agents",
+			"options": {
+				"backgroundColor": "transparent",
+				"trendDisplay": "off",
+				"sparklineDisplay": "off"
+			}
+		},
+		"viz_volume_trend": {
+			"type": "splunk.area",
+			"dataSources": {
+				"primary": "ds_volume_trend"
+			},
+			"title": "Daily Contact Volume Trend",
+			"options": {
+				"seriesColors": [
+					"#4f7fff"
+				],
+				"yAxisTitleText": "Contacts",
+				"xAxisTitleVisibility": "hide",
+				"legendDisplay": "off",
+				"nullValueDisplay": "connect"
+			}
+		},
+		"viz_channel_mix": {
+			"type": "splunk.pie",
+			"dataSources": {
+				"primary": "ds_channel_mix"
+			},
+			"title": "Contact Volume by Channel",
+			"options": {
+				"seriesColors": [
+					"#4f7fff",
+					"#7c5cfc",
+					"#22d3a5",
+					"#f59e0b"
+				],
+				"legendDisplay": "right"
+			}
+		},
+		"viz_termination_types": {
+			"type": "splunk.bar",
+			"dataSources": {
+				"primary": "ds_termination_types"
+			},
+			"title": "Contact Termination Types",
+			"options": {
+				"seriesColors": [
+					"#4f7fff"
+				],
+				"yAxisTitleText": "Contacts",
+				"xAxisTitleVisibility": "hide",
+				"legendDisplay": "off"
+			}
+		},
+		"viz_avg_times": {
+			"type": "splunk.bar",
+			"dataSources": {
+				"primary": "ds_avg_times"
+			},
+			"title": "Avg Time Components (seconds)",
+			"options": {
+				"seriesColors": [
+					"#7c5cfc"
+				],
+				"orientation": "horizontal",
+				"xAxisTitleText": "Seconds",
+				"yAxisTitleVisibility": "hide",
+				"legendDisplay": "off"
+			}
+		},
+		"viz_daily_outcomes": {
+			"type": "splunk.column",
+			"dataSources": {
+				"primary": "ds_daily_outcomes"
+			},
+			"title": "Daily Outcome Breakdown",
+			"options": {
+				"seriesColors": [
+					"#22d3a5",
+					"#4f7fff",
+					"#f0504a"
+				],
+				"stackMode": "stacked",
+				"yAxisTitleText": "Contacts",
+				"xAxisTitleVisibility": "hide",
+				"legendDisplay": "bottom"
+			}
+		},
+		"viz_rona_by_agent": {
+			"type": "splunk.table",
+			"dataSources": {
+				"primary": "ds_rona_by_agent"
+			},
+			"title": "RONA by Agent",
+			"options": {
+				"columnFormats": {
+					"RONA Count": {
+						"data": "color",
+						"gradient": {
+							"colors": [
+								"#53A051",
+								"#F8BE34",
+								"#DC4E41"
+							]
+						}
+					}
+				}
+			}
+		},
+		"viz_queue_abandonment": {
+			"type": "splunk.bar",
+			"dataSources": {
+				"primary": "ds_queue_abandonment"
+			},
+			"title": "Top Queues by Abandonment",
+			"options": {
+				"seriesColors": [
+					"#f0504a"
+				],
+				"orientation": "horizontal",
+				"xAxisTitleText": "Abandoned Contacts",
+				"yAxisTitleVisibility": "hide",
+				"legendDisplay": "off"
+			}
+		},
+		"viz_abandon_rate_by_queue": {
+			"type": "splunk.table",
+			"dataSources": {
+				"primary": "ds_abandon_rate_by_queue"
+			},
+			"title": "Abandonment Rate by Queue",
+			"options": {
+				"columnFormats": {
+					"Abandon Rate %": {
+						"data": "color",
+						"gradient": {
+							"colors": [
+								"#53A051",
+								"#F8BE34",
+								"#DC4E41"
+							]
+						}
+					}
+				}
+			}
+		},
+		"viz_top_agents": {
+			"type": "splunk.bar",
+			"dataSources": {
+				"primary": "ds_top_agents"
+			},
+			"title": "Top Agents by Contacts Handled",
+			"options": {
+				"seriesColors": [
+					"#22d3a5"
+				],
+				"orientation": "horizontal",
+				"xAxisTitleText": "Contacts Handled",
+				"yAxisTitleVisibility": "hide",
+				"legendDisplay": "off"
+			}
+		},
+		"viz_agent_states": {
+			"type": "splunk.pie",
+			"dataSources": {
+				"primary": "ds_agent_states"
+			},
+			"title": "Agent State Distribution",
+			"options": {
+				"seriesColors": [
+					"#4f7fff",
+					"#22d3a5",
+					"#f59e0b",
+					"#7c5cfc",
+					"#06b6d4",
+					"#f0504a",
+					"#6b7280"
+				],
+				"legendDisplay": "right"
+			}
+		},
+		"viz_agent_aht": {
+			"type": "splunk.table",
+			"dataSources": {
+				"primary": "ds_agent_aht"
+			},
+			"title": "Avg Handle Time by Agent (Top 10)",
+			"options": {
+				"columnFormats": {
+					"Avg Handle (s)": {
+						"data": "color",
+						"gradient": {
+							"colors": [
+								"#53A051",
+								"#F8BE34",
+								"#DC4E41"
+							]
+						}
+					}
+				}
+			}
+		},
+		"viz_car_events": {
+			"type": "splunk.bar",
+			"dataSources": {
+				"primary": "ds_car_events"
+			},
+			"title": "CAR Activity Event Types",
+			"options": {
+				"seriesColors": [
+					"#06b6d4"
+				],
+				"yAxisTitleText": "Count",
+				"xAxisTitleVisibility": "hide",
+				"legendDisplay": "off"
+			}
+		},
+		"viz_car_term_reasons": {
+			"type": "splunk.table",
+			"dataSources": {
+				"primary": "ds_car_term_reasons"
+			},
+			"title": "CAR Termination Reasons",
+			"options": {
+				"columnFormats": {
+					"Count": {
+						"data": "color",
+						"gradient": {
+							"colors": [
+								"#53A051",
+								"#F8BE34",
+								"#DC4E41"
+							]
+						}
+					}
+				}
+			}
+		}
+	},
+	"layout": {
+		"type": "absolute",
+		"options": {
+			"width": 1440,
+			"height": 1560,
+			"display": "auto-scale"
+		},
+		"globalInputs": [
+			"input_time",
+			"input_channel"
+		],
+		"structure": [
+			{
+				"item": "viz_total_contacts",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 20,
+					"w": 165,
+					"h": 90
+				}
+			},
+			{
+				"item": "viz_handled",
+				"type": "block",
+				"position": {
+					"x": 200,
+					"y": 20,
+					"w": 165,
+					"h": 90
+				}
+			},
+			{
+				"item": "viz_abandon_rate",
+				"type": "block",
+				"position": {
+					"x": 380,
+					"y": 20,
+					"w": 165,
+					"h": 90
+				}
+			},
+			{
+				"item": "viz_service_level",
+				"type": "block",
+				"position": {
+					"x": 560,
+					"y": 20,
+					"w": 165,
+					"h": 90
+				}
+			},
+			{
+				"item": "viz_aht",
+				"type": "block",
+				"position": {
+					"x": 740,
+					"y": 20,
+					"w": 165,
+					"h": 90
+				}
+			},
+			{
+				"item": "viz_avg_queue",
+				"type": "block",
+				"position": {
+					"x": 920,
+					"y": 20,
+					"w": 165,
+					"h": 90
+				}
+			},
+			{
+				"item": "viz_rona_total",
+				"type": "block",
+				"position": {
+					"x": 1100,
+					"y": 20,
+					"w": 155,
+					"h": 90
+				}
+			},
+			{
+				"item": "viz_active_agents",
+				"type": "block",
+				"position": {
+					"x": 1270,
+					"y": 20,
+					"w": 150,
+					"h": 90
+				}
+			},
+			{
+				"item": "viz_volume_trend",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 130,
+					"w": 950,
+					"h": 250
+				}
+			},
+			{
+				"item": "viz_channel_mix",
+				"type": "block",
+				"position": {
+					"x": 990,
+					"y": 130,
+					"w": 430,
+					"h": 250
+				}
+			},
+			{
+				"item": "viz_termination_types",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 400,
+					"w": 450,
+					"h": 250
+				}
+			},
+			{
+				"item": "viz_avg_times",
+				"type": "block",
+				"position": {
+					"x": 490,
+					"y": 400,
+					"w": 450,
+					"h": 250
+				}
+			},
+			{
+				"item": "viz_daily_outcomes",
+				"type": "block",
+				"position": {
+					"x": 960,
+					"y": 400,
+					"w": 460,
+					"h": 250
+				}
+			},
+			{
+				"item": "viz_rona_by_agent",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 670,
+					"w": 430,
+					"h": 250
+				}
+			},
+			{
+				"item": "viz_queue_abandonment",
+				"type": "block",
+				"position": {
+					"x": 470,
+					"y": 670,
+					"w": 480,
+					"h": 250
+				}
+			},
+			{
+				"item": "viz_abandon_rate_by_queue",
+				"type": "block",
+				"position": {
+					"x": 970,
+					"y": 670,
+					"w": 450,
+					"h": 250
+				}
+			},
+			{
+				"item": "viz_top_agents",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 940,
+					"w": 450,
+					"h": 300
+				}
+			},
+			{
+				"item": "viz_agent_states",
+				"type": "block",
+				"position": {
+					"x": 490,
+					"y": 940,
+					"w": 430,
+					"h": 300
+				}
+			},
+			{
+				"item": "viz_agent_aht",
+				"type": "block",
+				"position": {
+					"x": 940,
+					"y": 940,
+					"w": 480,
+					"h": 300
+				}
+			},
+			{
+				"item": "viz_car_events",
+				"type": "block",
+				"position": {
+					"x": 20,
+					"y": 1260,
+					"w": 700,
+					"h": 280
+				}
+			},
+			{
+				"item": "viz_car_term_reasons",
+				"type": "block",
+				"position": {
+					"x": 740,
+					"y": 1260,
+					"w": 680,
+					"h": 280
+				}
+			}
+		]
+	}
+}
+    ]]></definition>
+    <meta type="hiddenElements"><![CDATA[
+{
+	"hideEdit": false,
+	"hideOpenInSearch": false,
+	"hideExport": false
+}
+    ]]></meta>
+</dashboard>

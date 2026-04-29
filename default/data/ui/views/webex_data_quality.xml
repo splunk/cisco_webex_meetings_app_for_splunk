@@ -4,7 +4,7 @@
     <panel>
       <single>
         <search>
-          <query>| tstats count where `webex_index` by _time span=1d
+          <query>| tstats count where `webex_indexes` by _time span=1d
 | timechart span=1d sum(count)</query>
           <earliest>-7d@h</earliest>
           <latest>now</latest>
@@ -34,7 +34,7 @@
     <panel>
       <single>
         <search>
-          <query>| tstats latest(source) as source count max(_time) as latest_event max(_indextime) as latest_indextime  where `webex_index` by host sourcetype
+          <query>| tstats latest(source) as source count max(_time) as latest_event max(_indextime) as latest_indextime  where `webex_indexes` by host sourcetype
 | eval latency = latest_indextime - latest_event
 | appendpipe 
     [| stats count
@@ -62,7 +62,7 @@
         <option name="trellis.size">medium</option>
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="underLabel">WebEx Indexing Health Status</option>
+        <option name="underLabel">Webex Indexing Health Status</option>
         <option name="unitPosition">after</option>
         <option name="useColors">0</option>
         <option name="useThousandSeparators">1</option>
@@ -72,9 +72,9 @@
   <row>
     <panel>
       <chart>
-        <title>WebEx Incoming Data</title>
+        <title>Webex Incoming Data</title>
         <search>
-          <query>| tstats prestats=t count where `webex_index` by _indextime host sourcetype
+          <query>| tstats prestats=t count where `webex_indexes` by _indextime host sourcetype
 | eval _time = _indextime
 | timechart count by sourcetype</query>
           <earliest>-24h@h</earliest>
@@ -118,9 +118,9 @@
     </panel>
     <panel>
       <chart>
-        <title>WebEx Indexing Latency (seconds)</title>
+        <title>Webex Indexing Latency (seconds)</title>
         <search>
-          <query>| tstats max(_indextime) as latest_indextime max(_time) as latest_time where `webex_index` by _time sourcetype span=1s
+          <query>| tstats max(_indextime) as latest_indextime max(_time) as latest_time where `webex_indexes` by _time sourcetype span=1s
 | eval latency = latest_indextime - latest_time
 | timechart span=1m median(latency) as median_latency by sourcetype limit=0</query>
           <earliest>-24h@h</earliest>
@@ -165,9 +165,9 @@
   <row>
     <panel>
       <table>
-        <title>WebEx Latest Data Sources</title>
+        <title>Webex Latest Data Sources</title>
         <search>
-          <query>`webex_index`
+          <query>`webex_indexes`
 | stats count max(_time) as latest_event max(_indextime) as latest_indextime by sourcetype
 | eval latency = latest_indextime - latest_event
 | convert timeformat="%+" ctime(latest_*)</query>
@@ -188,7 +188,7 @@
           <option name="unit">s</option>
         </format>
         <drilldown>
-          <link target="_blank">search?q=%60webex_index%60%20sourcetype=$row.sourcetype$&amp;earliest=@d&amp;latest=now</link>
+          <link target="_blank">search?q=%60webex_indexes%60%20sourcetype=$row.sourcetype$&amp;earliest=@d&amp;latest=now</link>
         </drilldown>
       </table>
     </panel>
